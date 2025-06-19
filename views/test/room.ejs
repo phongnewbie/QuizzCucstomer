@@ -1,0 +1,1755 @@
+<% layout = false %>
+<!DOCTYPE html>
+<html lang="<%= lng %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - <%= t('common:app_name') %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/css/modern_quiz_form.css" rel="stylesheet">
+    <link href="/css/quiz_preview.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    
+    <style>
+        /* Additional styles for real-time test */
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-radius: 16px;
+            --border-radius-lg: 20px;
+            --border-radius-sm: 8px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }   
+        .test-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(25%, -25%);
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .test-info {
+            position: relative;
+            z-index: 2;
+        }
+
+        .participant-score {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .score-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .waiting-room {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .waiting-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .participants-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .participant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+
+        .admin-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            transition: var(--transition);
+        }
+        .preview-option.submitted {
+            border: 3px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        .preview-option.pulse-selection {
+            animation: pulseSelection 0.6s ease-in-out;
+        }
+        @keyframes pulseSelection {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.02); }
+        }
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+            color: white;
+        }
+
+        .question-stats {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-label {
+            text-align: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .stat-progress {
+            flex: 1;
+            height: 30px;
+            background: #f1f5f9;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            min-width: 30px;
+        }
+
+        .leaderboard {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .leaderboard-header {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .leaderboard-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: var(--transition);
+        }
+
+        .leaderboard-item:hover {
+            background: #f8fafc;
+        }
+
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+
+        .rank-1 { background: #ffd700; color: #b45309; }
+        .rank-2 { background: #c0c0c0; color: #374151; }
+        .rank-3 { background: #cd7f32; color: white; }
+        .rank-other { background: #e2e8f0; color: #64748b; }
+
+        .player-info {
+            flex: 1;
+        }
+
+        .player-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .player-stats {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .player-score {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Language switcher positioning */
+        .language-switcher-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        /* Completion summary */
+        .completion-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .btn-finish-test {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-finish-test:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .test-header {
+                padding: 1rem;
+            }
+
+            .admin-controls {
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.25rem;
+            }
+
+            .participants-list {
+                max-height: 200px;
+            }
+
+            .language-switcher-container {
+                top: 5px;
+                right: 5px;
+            }
+        }@keyframes pulseSelection {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.02); }
+        }
+
+        /* Styling cho trạng thái disabled sau khi submit */
+        .preview-option.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+            filter: grayscale(0.3);
+        }
+
+        /* Override cho option đã submit để vẫn hiển thị rõ */
+        .preview-option.submitted.disabled {
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        /* Styling cho submission notification */
+        #submissionNotification {
+            border-radius: 12px;
+            border: 2px solid #10b981;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        #submissionNotification.alert-success {
+            color: #059669;
+            border-color: #10b981;
+        }
+
+        #submissionNotification.alert-warning {
+            color: #d97706;
+            border-color: #f59e0b;
+            background: rgba(254, 252, 232, 0.95) !important;
+        }
+
+        /* Icon status trong option */
+        .preview-option-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive design cho notification */
+        @media (max-width: 576px) {
+            #submissionNotification {
+                min-width: 280px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                top: 80px;
+            }
+        }
+
+        /* Loading state cho options khi đang submit */
+        .preview-option.submitting {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .preview-option.submitting::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #10b981;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        /* Success checkmark animation */
+        .preview-option-status .fa-check {
+            animation: checkmarkPop 0.5s ease-out;
+        }
+
+        @keyframes checkmarkPop {
+            0% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Timer warning states */
+        .timer-circle.submitted {
+            border-color: #10b981 !important;
+        }
+
+        .timer-circle.submitted .timer-text {
+            color: #10b981 !important;
+        }
+
+        /* Waiting state styling */
+        .waiting-for-others {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            color: #0369a1;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .waiting-for-others .spinner-border {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Hide question content partially after submission */
+        .question-submitted .preview-question-content {
+            opacity: 0.8;
+        }
+
+        .question-submitted .preview-options {
+            pointer-events: none;
+        }
+
+        .question-submitted .preview-options .preview-option:not(.submitted) {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        /* Smooth transitions */
+        .preview-option {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .preview-option:hover:not(.disabled):not(.submitted) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid quiz-preview-container" style="padding: 10px;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <!-- Test Header -->
+                <div class="test-header">
+                    <div class="test-info">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="h3 mb-1">
+                                    <i class="fas fa-rocket me-2"></i>
+                                    <%= quiz.title %>
+                                </h1>
+                                <p class="mb-0 opacity-75">
+                                    <%= t('test:test_code') %>: <strong><%= test.testCode %></strong> | 
+                                    <%= t('test:quiz_title') %> #<%= test.quizNumber %> | 
+                                    <%= quiz.questions.length %> <%= t('quiz:questions') %>
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <% if (!isAdmin) { %>
+                                <div class="participant-score">
+                                    <span class="score-value" id="playerScore">0</span>
+                                    <div class="score-label"><%= t('test:your_score') %></div>
+                                </div>
+                                <% } else { %>
+                                <div class="text-end">
+                                    <div class="badge bg-warning fs-6">
+                                        <i class="fas fa-crown me-1"></i><%= t('quiz:admin') %>
+                                    </div>
+                                </div>
+                                <% } %>
+                                <!-- Timer Section -->
+                                <div class="quiz-timer-section">
+                                    <div class="quiz-timer-compact">
+                                        <div class="timer-circle" id="timerCircle">
+                                            <span class="timer-text" id="timerText">
+                                                <span id="timerMinutes">00</span>:<span id="timerSeconds">30</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waiting Room (shown initially) -->
+                <div id="waitingRoom" class="card">
+                    <div class="card-body waiting-room">
+                        <div class="waiting-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="mb-3">
+                            <% if (isAdmin) { %>
+                                <%= t('test:waiting_for_participants') %>
+                            <% } else { %>
+                                <%= t('test:waiting_for_start') %>
+                            <% } %>
+                        </h4>
+                        <p class="text-muted mb-4">
+                            <span id="participantCount">0</span> / <%= test.maxParticipants %> <%= t('test:participants') %> <%= t('test:joined') %>
+                        </p>
+
+                        <!-- Participants List -->
+                        <div class="participants-list" id="participantsList">
+                            <!-- Participants will be populated by JavaScript -->
+                        </div>
+
+                        <% if (isAdmin) { %>
+                        <!-- Admin Start Button -->
+                        <div class="mt-4">
+                            <button class="btn btn-success btn-lg" id="startTestBtn" disabled>
+                                <i class="fas fa-play me-2"></i><%= t('test:start_test') %>
+                            </button>
+                        </div>
+                        <% } else { %>
+                        <div class="mt-4">
+                            <div class="spinner-border text-primary me-2" role="status">
+                                <span class="visually-hidden"><%= t('common:loading') %></span>
+                            </div>
+                            <%= t('test:waiting_admin_start') %>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Quiz Content (hidden initially) -->
+                <div id="quizContent" style="display: none;">
+                    <!-- Enhanced Quiz Header -->
+                    <% if (isAdmin) { %>
+                        <div class="quiz-info-header">
+                            <div class="quiz-header-layout">
+                                <!-- Actions Section -->
+                                <div class="quiz-actions-section">
+                                    <!-- Admin Controls -->
+                                    <button class="btn btn-secondary" id="showStatsBtn" onclick="toggleQuestionStats()" style="display: none; background: linear-gradient(135deg, #9e597f, #ad3675)">
+                                        <i class="fas fa-chart-bar me-1"></i><%= t('test:stats') %>
+                                    </button>
+                                    
+                                    <button class="btn btn-secondary" id="showRankingBtn" onclick="toggleLeaderboard()" style="background: linear-gradient(to right, #f46b45, #d49741)">
+                                        <i class="fas fa-trophy me-1"></i><%= t('test:ranking') %>
+                                    </button>
+                                    
+                                    <button class="btn btn-primary" id="nextQuestionBtn" onclick="nextQuestion()">
+                                        <i class="fas fa-arrow-right me-1"></i><%= t('quiz:next') %>
+                                    </button>
+                                    
+                                    <button class="btn btn-success" id="finishTestBtn" onclick="finishTest()" style="display: none;">
+                                        <i class="fas fa-flag-checkered me-1"></i><%= t('test:finish_test') %>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                    <% } %>
+                    <!-- Question Display Container -->
+                    <div id="previewQuestionContainer">
+                        <!-- Questions will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Question Statistics (Admin only) -->
+                    <% if (isAdmin) { %>
+                    <div id="questionStats" class="question-stats" style="display: none;">
+                        <h5 class="mb-3">
+                            <i class="fas fa-chart-bar me-2"></i><%= t('test:answer_statistics') %>
+                        </h5>
+                        <div id="statsContent">
+                            <!-- Stats will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Leaderboard (hidden initially) -->
+                    <div id="leaderboard" class="leaderboard" style="display: none;">
+                        <div class="leaderboard-header">
+                            <h4 class="mb-0">
+                                <i class="fas fa-trophy me-2"></i><%= t('test:live_leaderboard') %>
+                            </h4>
+                        </div>
+                        <div class="leaderboard-list" id="leaderboardContent">
+                            <!-- Leaderboard will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completion Summary (hidden initially) -->
+                <div id="completionSummary" class="completion-summary" style="display: none;">
+                    <div class="completion-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3><%= t('test:test_completed') %></h3>
+                    <p class="lead mb-3"><%= t('test:thank_you') %></p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4 id="finalScore">0</h4>
+                            <small class="text-muted"><%= t('test:final_score') || 'Final Score' %></small>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 id="correctAnswers">0</h4>
+                            <small class="text-muted"><%= t('test:correct_answers') %></small>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 id="totalTime">0:00</h4>
+                            <small class="text-muted"><%= t('test:total_time') || 'Total Time' %></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Data -->
+    <script id="quiz-data" type="application/json">
+        <%- JSON.stringify({
+            testCode: test.testCode,
+            isAdmin: isAdmin,
+            quiz: {
+                title: quiz.title,
+                number: quiz.number,
+                questions: quiz.questions.map((q, i) => ({
+                    id: i,
+                    content: q.content,
+                    options: q.options,
+                    correctAnswer: q.correctAnswer,
+                    answerTime: q.answerTime || 30,
+                    image: q.image
+                }))
+            },
+            user: user
+        }) %>
+    </script>
+
+    <!-- Translation object for JavaScript -->
+    <script>
+        window.translations = {
+            lng: '<%= lng %>',
+            // Test translations
+            testCode: '<%= t("test:test_code") %>',
+            quizTitle: '<%= t("test:quiz_title") %>',
+            questions: '<%= t("quiz:questions") %>',
+            yourScore: '<%= t("test:your_score") %>',
+            admin: '<%= t("quiz:admin") %>',
+            waitingForParticipants: '<%= t("test:waiting_for_participants") %>',
+            waitingForStart: '<%= t("test:waiting_for_start") %>',
+            participants: '<%= t("test:participants") %>',
+            joined: '<%= t("test:joined") %>',
+            startTest: '<%= t("test:start_test") %>',
+            loading: '<%= t("common:loading") %>',
+            waitingAdminStart: '<%= t("test:waiting_admin_start") %>',
+            stats: '<%= t("test:stats") %>',
+            ranking: '<%= t("test:ranking") %>',
+            next: '<%= t("quiz:next") %>',
+            finishTest: '<%= t("quiz:finish_test") %>',
+            answerStatistics: '<%= t("test:answer_statistics") %>',
+            liveLeaderboard: '<%= t("test:live_leaderboard") %>',
+            
+            // Common translations
+            score: '<%= t("test:score") %>',
+            rank: '<%= t("test:rank") %>',
+            correct: '<%= t("test:correct") %>',
+            incorrect: '<%= t("test:incorrect") %>',
+            noAnswer: '<%= t("test:no_answer") %>',
+            
+            // Action messages
+            testCompleted: '<%= t("test:test_completed") %>',
+            thankYou: '<%= t("test:thank_you") %>',
+            viewResults: '<%= t("common:view") %> <%= t("test:results") %>',
+            finishTestConfirm: '<%= t("test:finish_test_confirm") %>',
+            finishTestConfirmText: '<%= t("test:finish_test_confirm_text") %>',
+            yesFinish: '<%= t("test:yes_finish") %>',
+            cancel: '<%= t("common:cancel") %>',
+            
+            // Connection messages
+            connectionLost: '<%= t("test:connection_lost") %>',
+            reconnecting: '<%= t("test:reconnecting") %>',
+            adminDisconnected: '<%= t("test:admin_disconnected") %>',
+            adminDisconnectedText: '<%= t("test:admin_disconnected_text") %>',
+            nameConflict: '<%= t("test:name_conflict") %>',
+            nameConflictText: '<%= t("test:name_conflict_text") %>',
+            testFull: '<%= t("test:test_full") %>',
+            testFullText: '<%= t("test:test_full_text") %>',
+            error: '<%= t("common:error") %>',
+            
+            // Notification messages
+            userJoined: '<%= t("test:user_joined") %>',
+            userLeft: '<%= t("test:user_left") %>',
+            answerSubmitted: '<%= t("test:answer_submitted") %>',
+            waitingForOthers: '<%= t("test:waiting_for_others") %>',
+            
+            // Timer and submission
+            timeRemaining: '<%= t("test:time_remaining") %>',
+            submitted: '<%= t("test:submitted") %>',
+            correctAnswer: '<%= t("test:correct_answer") %>',
+            totalAnswers: '<%= t("test:total_answers") %>',
+            correctAnswers: '<%= t("test:correct_answers") %>',
+            answerDistribution: '<%= t("test:answer_distribution") %>'
+        };
+    </script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/quiz_preview.js"></script>
+    
+    <script>
+        // Real-time test functionality - FIXED with single join logic
+        let socket;
+        let testData;
+        let currentQuestion = 0;
+        let questionStartTime = 0;
+        let questionTimer = null;
+        let playerScore = 0;
+        let isQuestionActive = false;
+        let selectedTimeRemaining = 0;
+        let showingLeaderboard = false;
+        let reconnectAttempts = 0;
+        let maxReconnectAttempts = 5;
+        let hasSubmittedAnswer = false;
+        
+        // ADDED: Track join status
+        let hasJoinedTest = false;
+        let participantData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            testData = JSON.parse(document.getElementById('quiz-data').textContent);
+            initializeSocket();
+            setupConnectionHealthCheck();
+        });
+
+        function initializeSocket() {
+            socket = io({
+                transports: ['websocket', 'polling'],
+                timeout: 20000,
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                maxReconnectionAttempts: 5
+            });
+            
+            setupSocketEvents();
+            
+            // MODIFIED: Only join on first load
+            if (testData.isAdmin) {
+                joinAsAdmin();
+            } else if (!hasJoinedTest) {
+                joinAsParticipant();
+            }
+        }
+
+        function setupSocketEvents() {
+            // Connection events
+            socket.on('connect', () => {
+                reconnectAttempts = 0;
+                hideConnectionError();
+                
+                // MODIFIED: Handle reconnection properly
+                if (testData.isAdmin && !hasJoinedTest) {
+                    joinAsAdmin();
+                } else if (!testData.isAdmin && hasJoinedTest && participantData) {
+                    // If already joined, just rejoin with existing data
+                    rejoinAsParticipant();
+                } else if (!testData.isAdmin && !hasJoinedTest) {
+                    // First time join
+                    joinAsParticipant();
+                }
+            });
+
+            socket.on('disconnect', (reason) => {
+                if (reason === 'io server disconnect') {
+                    socket.connect();
+                }
+                showConnectionError(window.translations.connectionLost);
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+                reconnectAttempts++;
+                
+                if (reconnectAttempts >= maxReconnectAttempts) {
+                    showConnectionError(window.translations.connectionLost);
+                } else {
+                    showConnectionError(`${window.translations.reconnecting} (${reconnectAttempts}/${maxReconnectAttempts})`);
+                }
+            });
+
+            socket.on('error', (error) => {
+                console.error('Socket error:', error);
+                
+                if (error.message && error.message.includes('Name already taken')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: window.translations.nameConflict,
+                        text: window.translations.nameConflictText,
+                        confirmButtonColor: '#667eea'
+                    }).then(() => {
+                        window.location.href = `/test/join/${testData.testCode}`;
+                    });
+                } else if (error.message && error.message.includes('Test is full')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: window.translations.testFull,
+                        text: window.translations.testFullText,
+                        confirmButtonColor: '#667eea'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: window.translations.error,
+                        text: error.message || 'An unexpected error occurred.',
+                        confirmButtonColor: '#667eea'
+                    });
+                }
+            });
+
+            // Admin events
+            if (testData.isAdmin) {
+                socket.on('admin:joined', handleAdminJoined);
+                socket.on('admin:participant_joined', handleParticipantJoined);
+                socket.on('admin:participant_left', handleParticipantLeft);
+                socket.on('admin:answer_submitted', handleAnswerSubmitted);
+                socket.on('admin:question_stats', handleQuestionStats);
+                socket.on('admin:leaderboard', handleLeaderboard);
+            } else {
+                socket.on('participant:joined', handleParticipantJoined);
+                socket.on('participant:answer_submitted', handleAnswerSubmitted);
+                socket.on('participant:leaderboard', handleLeaderboard);
+            }
+
+            // Common events
+            socket.on('test:started', handleTestStarted);
+            socket.on('question:started', handleQuestionStarted);
+            socket.on('question:ended', handleQuestionEnded);
+            socket.on('test:completed', handleTestCompleted);
+            socket.on('participant:user_joined', handleUserJoined);
+            socket.on('participant:user_left', handleUserLeft);
+            socket.on('admin:disconnected', handleAdminDisconnected);
+        }
+
+        function joinAsAdmin() {
+            if (!socket || !socket.connected) {
+                setTimeout(() => joinAsAdmin(), 1000);
+                return;
+            }
+            
+            if (hasJoinedTest) return; // Prevent duplicate joins
+            
+            socket.emit('admin:join', {
+                testCode: testData.testCode,
+                adminId: testData.user.id
+            });
+            
+            hasJoinedTest = true;
+        }
+
+        function joinAsParticipant() {
+            if (!socket || !socket.connected) {
+                setTimeout(() => joinAsParticipant(), 1000);
+                return;
+            }
+            
+            if (hasJoinedTest) return; // Prevent duplicate joins
+            
+            const testSession = JSON.parse(sessionStorage.getItem('testSession') || '{}');
+            
+            // ENHANCED: Check for proper validation
+            if (!testSession.participantName || !testSession.readyToJoin || !testSession.validated) {
+                window.location.href = `/test/join/${testData.testCode}`;
+                return;
+            }
+            
+            // Check session timeout (5 minutes)
+            const sessionAge = Date.now() - (testSession.timestamp || 0);
+            if (sessionAge > 5 * 60 * 1000) {
+                sessionStorage.removeItem('testSession');
+                window.location.href = `/test/join/${testData.testCode}`;
+                return;
+            }
+
+            socket.emit('participant:join', {
+                testCode: testData.testCode,
+                participantName: testSession.participantName
+            });
+            
+            // Mark as attempting to join
+            hasJoinedTest = true;
+        }
+
+        // NEW: Handle rejoin for existing participants
+        function rejoinAsParticipant() {
+            if (!socket || !socket.connected || !participantData) {
+                return;
+            }
+            
+            // Don't rejoin if already joined successfully
+            if (hasJoinedTest) {
+                return;
+            }
+            
+            socket.emit('participant:join', {
+                testCode: testData.testCode,
+                participantName: participantData.name
+            });
+            
+            hasJoinedTest = true;
+        }
+
+        // Event Handlers
+        function handleAdminJoined(data) {
+            updateWaitingRoom(data.waitingRoom);
+        }
+
+        function handleParticipantJoined(data) {
+            if (!testData.isAdmin) {
+                // Store participant data for reconnection
+                participantData = data.participant;
+                updateWaitingRoom(data.waitingRoom);
+                
+                // Clear the session flags but keep participant name for reconnection
+                const testSession = JSON.parse(sessionStorage.getItem('testSession') || '{}');
+                const cleanSession = {
+                    testCode: testSession.testCode,
+                    participantName: testSession.participantName
+                    // Remove readyToJoin, validated, timestamp flags
+                };
+                sessionStorage.setItem('testSession', JSON.stringify(cleanSession));
+                
+            } else {
+                updateWaitingRoom(data.waitingRoom);
+            }
+        }
+
+        function handleParticipantLeft(data) {
+            if (testData.isAdmin && data.waitingRoom) {
+                updateWaitingRoom(data.waitingRoom);
+            }
+        }
+    
+        function setupConnectionHealthCheck() {
+            setInterval(() => {
+                if (socket && socket.connected) {
+                    socket.emit('ping');
+                }
+            }, 30000);
+            
+            socket.on('pong', () => {
+                hideConnectionError();
+            });
+        }
+
+        function handleTestStarted(data) {
+            document.getElementById('waitingRoom').style.display = 'none';
+            document.getElementById('quizContent').style.display = 'block';
+            startQuestion();
+        }
+
+        function handleQuestionStarted(data) {
+            isQuestionActive = true;
+            selectedAnswer = null;
+            selectedTimeRemaining = 0;
+            hasSubmittedAnswer = false; // Reset submission flag
+            currentQuestion = data.questionNumber;
+            questionStartTime = data.startTime;
+            timeRemaining = data.timeLimit;
+            
+            // Ẩn notification của câu trước
+            const notification = document.getElementById('submissionNotification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
+            
+            displayQuestion(data.question);
+            startQuestionTimer(data.timeLimit);
+            
+            if (testData.isAdmin) {
+                document.getElementById('nextQuestionBtn').disabled = true;
+                const statsBtn = document.getElementById('showStatsBtn');
+                if (statsBtn) statsBtn.style.display = 'none';
+            }
+        }
+
+        function handleQuestionEnded(data) {
+            isQuestionActive = false;
+            stopQuestionTimer();
+            
+            // Ẩn submission notification
+            const notification = document.getElementById('submissionNotification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
+            
+            // Show correct answer
+            highlightCorrectAnswer(data);
+            
+            if (testData.isAdmin) {
+                document.getElementById('nextQuestionBtn').disabled = false;
+                const statsBtn = document.getElementById('showStatsBtn');
+                if (statsBtn) statsBtn.style.display = 'inline-block';
+                
+                // Show finish button if last question
+                if (currentQuestion >= testData.quiz.questions.length - 1) {
+                    document.getElementById('nextQuestionBtn').style.display = 'none';
+                    document.getElementById('finishTestBtn').style.display = 'inline-block';
+                }
+                
+                updateQuestionStats(data.stats);
+            }
+        }
+
+        function handleAnswerSubmitted(data) {
+            if (!testData.isAdmin) {
+                playerScore = data.newScore;
+                document.getElementById('playerScore').textContent = playerScore;
+                
+                // Cập nhật notification với điểm số
+                const notification = document.getElementById('submissionNotification');
+                if (notification && hasSubmittedAnswer) {
+                    const isCorrect = data.isCorrect;
+                    const points = data.points;
+                    
+                    notification.className = `alert ${isCorrect ? 'alert-success' : 'alert-warning'}`;
+                    notification.innerHTML = `
+                        <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'} me-2"></i>
+                        ${isCorrect ? window.translations.correct : window.translations.incorrect}! +${points} ${window.translations.score}
+                    `;
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 3000);
+                }
+                highlightCorrectAnswer(data);
+            }
+        }
+
+        function handleTestCompleted(data) {
+            if (testData.isAdmin) {
+                // Admin sees SweetAlert as before
+                Swal.fire({
+                    icon: 'success',
+                    title: window.translations.testCompleted,
+                    text: window.translations.thankYou,
+                    showConfirmButton: true,
+                    confirmButtonText: window.translations.viewResults
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/test/results/${testData.testCode}`;
+                    }
+                });
+            } else {
+                // Show completion summary for participants
+                showCompletionSummary();
+            }
+        }
+
+        function handleUserJoined(data) {
+            updateParticipantCount(data.participantCount);
+            showNotification(`${data.participantName} ${window.translations.userJoined}`, 'info');
+        }
+
+        function handleUserLeft(data) {
+            updateParticipantCount(data.participantCount);
+            showNotification(`${data.participantName} ${window.translations.userLeft}`, 'warning');
+        }
+
+        function handleAdminDisconnected() {
+            showNotification(window.translations.adminDisconnected, 'error');
+            if (!testData.isAdmin) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: window.translations.adminDisconnected,
+                    text: window.translations.adminDisconnectedText,
+                    confirmButtonColor: '#667eea'
+                });
+            }
+        }
+
+        function handleQuestionStats(data) {
+            updateQuestionStats(data.stats);
+        }
+
+        function handleLeaderboard(data) {
+            updateLeaderboard(data.leaderboard);
+        }
+
+        // UI Functions
+        function updateWaitingRoom(waitingRoom) {
+            document.getElementById('participantCount').textContent = waitingRoom.participantCount;
+            
+            const participantsList = document.getElementById('participantsList');
+            participantsList.innerHTML = '';
+            
+            waitingRoom.participants.forEach((participant, index) => {
+                const participantEl = document.createElement('div');
+                participantEl.className = 'participant-item';
+                participantEl.innerHTML = `
+                    <div class="participant-avatar">
+                        ${participant.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">${participant.name}</div>
+                        <small class="text-muted">${window.translations.score}: ${participant.score || 0} | ${window.translations.joined} ${new Date(participant.joinedAt).toLocaleTimeString()}</small>
+                    </div>
+                    ${participant.isActive ? `<span class="badge bg-success">${window.translations.online || 'Online'}</span>` : `<span class="badge bg-secondary">${window.translations.offline || 'Offline'}</span>`}
+                `;
+                participantsList.appendChild(participantEl);
+            });
+            
+            if (testData.isAdmin) {
+                const startBtn = document.getElementById('startTestBtn');
+                if (startBtn) {
+                    startBtn.disabled = waitingRoom.participantCount === 0;
+                }
+            }
+        }
+
+        function displayQuestion(question) {
+            const container = document.getElementById('previewQuestionContainer');
+            
+            let questionHTML = `
+                <div class="question-display-container">
+                    <div class="preview-question-header">
+                        <div class="preview-question-number">${question.number}</div>
+                        <div class="preview-question-content">
+                            <h5 class="preview-question-title">${question.content}</h5>
+                        </div>
+                    </div>
+            `;
+            
+            if (question.image) {
+                questionHTML += `
+                    <div class="preview-question-image">
+                        <img src="${question.image}" alt="Question Image">
+                    </div>
+                `;
+            }
+            
+            questionHTML += '<div class="preview-options">';
+            question.options.forEach(option => {
+                if (option.text && option.text.trim()) {
+                    const colorClass = `letter-${option.letter.toLowerCase()}`;
+                    const clickHandler = testData.isAdmin ? '' : `onclick="selectAnswer('${option.letter}')"`;
+                    const cursorStyle = testData.isAdmin ? 'cursor: default;' : 'cursor: pointer;';
+                    
+                    questionHTML += `
+                        <div class="preview-option" 
+                            data-letter="${option.letter}" 
+                            style="${cursorStyle}"
+                            ${clickHandler}>
+                            <div class="preview-option-content">
+                                <div class="preview-option-letter ${colorClass}">${option.letter}</div>
+                                <div class="preview-option-text">${option.text}</div>
+                                <div class="preview-option-status"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            questionHTML += '</div></div>';
+            
+            container.innerHTML = questionHTML;
+            
+            setTimeout(() => {
+                if (typeof applyOptionColors === 'function') {
+                    applyOptionColors();
+                }
+            }, 100);
+        }
+
+        // IMPROVED: Allow answer selection without immediate submission
+        function selectAnswer(letter) {
+            if (!isQuestionActive || testData.isAdmin || hasSubmittedAnswer) return;
+            
+            // Set selected answer
+            selectedAnswer = letter;
+            selectedTimeRemaining = timeRemaining;
+            
+            // Visual selection - remove previous selection
+            const options = document.querySelectorAll('.preview-option');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+                opt.classList.remove('pulse-selection');
+            });
+            
+            // Add selection to new option
+            const selectedOption = document.querySelector(`[data-letter="${selectedAnswer}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                selectedOption.classList.add('pulse-selection');
+            }
+            
+            hasSubmittedAnswer = true;
+            
+            socket.emit('participant:submit_answer', {
+                testCode: testData.testCode,
+                questionNumber: currentQuestion,
+                selectedAnswer: selectedAnswer,
+                timeRemaining: selectedTimeRemaining
+            });
+            
+            // Hiển thị trạng thái đã submit
+            showSubmissionStatus();
+        }
+
+        function showSubmittedNotification() {
+            // Tạo notification element
+            let notification = document.getElementById('submissionNotification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'submissionNotification';
+                notification.className = 'alert alert-success';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 9999;
+                    min-width: 300px;
+                    text-align: center;
+                    animation: slideDown 0.3s ease-out;
+                `;
+                document.body.appendChild(notification);
+            }
+            
+            notification.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${window.translations.answerSubmitted}! ${window.translations.waitingForOthers}
+            `;
+            
+            notification.style.display = 'block';
+        }
+
+        function showSubmissionStatus() {
+            // Disable tất cả options
+            const options = document.querySelectorAll('.preview-option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.7';
+            });
+            
+            // Highlight option đã chọn
+            const selectedOption = document.querySelector(`[data-letter="${selectedAnswer}"]`);
+            if (selectedOption) {
+                selectedOption.style.opacity = '1';
+                selectedOption.classList.add('submitted');
+                
+                // Thêm icon submitted
+                const statusElement = selectedOption.querySelector('.preview-option-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<i class="fas fa-check text-success"></i>';
+                }
+            }
+            
+            // Hiển thị thông báo đã submit
+            showSubmittedNotification();
+        }
+
+        function startQuestionTimer(seconds) {
+            const timerElement = document.getElementsByClassName('quiz-timer-compact')[0];
+            if (timerElement) {
+                timerElement.style.display = 'block';
+            }
+            let counter = 0;
+            let intervalTime = 50;
+            let randomNumber = Math.floor(Math.random() * 1000) + 1 - intervalTime;
+            timeRemaining = seconds;
+            updateTimerDisplay();
+            questionTimer = setInterval(() => {
+                counter += intervalTime;
+                if (counter >= 1000) {
+                    counter = 0;
+                    timeRemaining--;
+                    updateTimerDisplay();            
+                }
+                if (timeRemaining <= 1 && counter > Math.max(randomNumber, 400)) {
+                    timeRemaining=0;
+                    counter = 0;
+                    updateTimerDisplay();
+                    stopQuestionTimer();
+                }
+
+            }, intervalTime);
+        }
+
+        function stopQuestionTimer() {
+            if (questionTimer) {
+                clearInterval(questionTimer);
+                questionTimer = null;
+                
+                // Chỉ submit nếu chưa submit và không phải admin
+                if (!testData.isAdmin && !hasSubmittedAnswer) {
+                    // Submit với no answer nếu không chọn gì
+                    socket.emit('participant:submit_answer', {
+                        testCode: testData.testCode,
+                        questionNumber: currentQuestion,
+                        selectedAnswer: null, // No answer selected
+                        timeRemaining: 0
+                    });
+                    
+                    hasSubmittedAnswer = true;
+                }
+            }
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            
+            const minutesEl = document.getElementById('timerMinutes');
+            const secondsEl = document.getElementById('timerSeconds');
+            
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+            
+            // Update timer circle color
+            const timerCircle = document.querySelector('.timer-circle');
+            if (timerCircle) {
+                const question = testData.quiz.questions[currentQuestion];
+                const totalTime = question ? question.answerTime : 30;
+                const percentageLeft = (timeRemaining / totalTime) * 100;
+                
+                timerCircle.classList.remove('warning', 'danger');
+                
+                if (percentageLeft <= 10) {
+                    timerCircle.classList.add('danger');
+                } else if (percentageLeft <= 30) {
+                    timerCircle.classList.add('warning');
+                }
+            }
+        }
+
+        function highlightCorrectAnswer(data) {
+            const options = document.querySelectorAll('.preview-option');
+            options.forEach(option => {
+                const letter = option.getAttribute('data-letter');
+                const statusElement = option.querySelector('.preview-option-status');
+                
+                if (data.isCorrect && letter === data.selectedAnswer) {
+                    option.classList.add('correct');
+                    statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+                } else if (!data.isCorrect && letter === data.selectedAnswer) {
+                    option.classList.add('wrong');
+                    statusElement.innerHTML = '<i class="fas fa-times-circle text-danger"></i>';
+                }
+                
+                // Disable further selection
+                option.style.pointerEvents = 'none';
+                option.classList.remove('pulse-selection');
+            });
+        }
+
+        // Admin Functions
+        function startTest() {
+            if (!testData.isAdmin) return;
+            
+            socket.emit('admin:start_test', {
+                testCode: testData.testCode
+            });
+        }
+
+        function nextQuestion() {
+            if (!testData.isAdmin) return;
+            
+            const leaderboard = document.getElementById('leaderboard');
+            const previewQuestionContainer = document.getElementById('previewQuestionContainer');
+            const stats = document.getElementById('questionStats');
+
+            leaderboard.style.display = 'none';
+            stats.style.display = 'none';
+            previewQuestionContainer.style.display = 'block';
+            document.getElementById('showRankingBtn').innerText = window.translations.ranking;
+            
+            const nextQuestionIndex = currentQuestion + 1;
+            
+            if (nextQuestionIndex < testData.quiz.questions.length) {
+                socket.emit('admin:start_question', {
+                    testCode: testData.testCode,
+                    questionNumber: nextQuestionIndex
+                });
+            }
+        }
+
+        function startQuestion() {
+            if (!testData.isAdmin) return;
+            
+            const nextQuestionIndex = 0;
+
+            if (nextQuestionIndex < testData.quiz.questions.length) {
+                socket.emit('admin:start_question', {
+                    testCode: testData.testCode,
+                    questionNumber: nextQuestionIndex
+                });
+            }
+        }
+
+        function finishTest() {
+            if (!testData.isAdmin) return;
+            
+            Swal.fire({
+                title: window.translations.finishTestConfirm || 'Finish Test?',
+                text: window.translations.finishTestConfirmText || 'This will end the test for all participants.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: window.translations.yesFinish || 'Yes, Finish Test',
+                cancelButtonText: window.translations.cancel
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('admin:complete_test', {
+                        testCode: testData.testCode
+                    });
+                }
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+
+            toast.fire({
+                icon: type,
+                title: message
+            });
+        }
+
+        function showConnectionError(message) {
+            hideConnectionError();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'connectionError';
+            errorDiv.className = 'alert alert-danger position-fixed';
+            errorDiv.style.cssText = 'top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px; text-align: center;';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(errorDiv);
+        }
+
+        function hideConnectionError() {
+            const errorDiv = document.getElementById('connectionError');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+
+        function updateParticipantCount(count) {
+            const element = document.getElementById('participantCount');
+            if (element) {
+                element.textContent = count;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('startTestBtn')?.addEventListener('click', startTest);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (socket) {
+                socket.disconnect();
+            }
+        });
+
+        // Additional functions for leaderboard, stats, etc.
+        function updateQuestionStats(stats) {
+            if (!testData.isAdmin) return;
+            
+            const statsContent = document.getElementById('statsContent');
+            if (!statsContent) return;
+            
+            let statsHTML = `
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="modern-stat-card total-answers">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">${window.translations.totalAnswers}</div>
+                                <div class="stat-value">${stats.totalAnswers}</div>
+                            </div>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="modern-stat-card correct-answers">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">${window.translations.correctAnswers}</div>
+                                <div class="stat-value">${stats.correctAnswers}</div>
+                            </div>
+                            <div class="stat-decoration"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="answer-distribution">
+                    <h6 class="distribution-title">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        ${window.translations.answerDistribution}
+                    </h6>
+            `;
+            
+            const question = testData.quiz.questions[currentQuestion];
+            if (question && question.options) {
+                question.options.forEach(option => {
+                    const count = stats.answerDistribution[option.letter] || 0;
+                    const percentage = stats.totalAnswers > 0 ? 
+                        Math.round((count / stats.totalAnswers) * 100) : 0;
+                    statsHTML += `
+                    <div class="stat-option-label">
+                        <span class="preview-option-letter letter-${option.letter}">${option.letter}</span>
+                        <div class="stat-progress-container">
+                            <div class="stat-progress-track">
+                                <div class="stat-progress-fill" style="width: ${percentage}% !important" data-percentage="${percentage}">
+                                    <span class="progress-text">${count}</span>
+                                </div>
+                            </div>
+                            <div class="stat-percentage">${percentage}%</div>
+                        </div>
+                    </div>
+                    `;
+                });
+            }
+            
+            statsHTML += `</div>`;
+            statsContent.innerHTML = statsHTML;
+            
+            // Animate the progress bars
+            setTimeout(() => {
+                document.querySelectorAll('.stat-progress-fill').forEach(fill => {
+                    fill.style.animation = 'fillProgress 1s ease-out forwards';
+                });
+            }, 100);
+        }
+
+        function updateLeaderboard(leaderboard) {
+            const content = document.getElementById('leaderboardContent');
+            if (!content) return;
+            
+            content.innerHTML = '';
+            
+            leaderboard.forEach((player, index) => {
+                const rank = index + 1;
+                const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
+                const trophy = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div class="rank-badge ${rankClass}">
+                        ${trophy || rank}
+                    </div>
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-stats">${player.correctAnswers} ${window.translations.correctAnswers}</div>
+                    </div>
+                    <div class="player-score">${player.score}</div>
+                `;
+                content.appendChild(item);
+            });
+        }
+
+        function toggleQuestionStats() {
+            if (!testData.isAdmin) return;
+            
+            const stats = document.getElementById('questionStats');
+            const leaderboard = document.getElementById('leaderboard');
+            const previewQuestionContainer = document.getElementById('previewQuestionContainer');
+            
+            if (stats.style.display === 'none') {
+                stats.style.display = 'block';
+                leaderboard.style.display = 'none';
+                previewQuestionContainer.style.display = 'none';
+                
+                socket.emit('admin:get_question_stats', {
+                    testCode: testData.testCode,
+                    questionNumber: currentQuestion
+                });
+            } else {
+                stats.style.display = 'none';
+                previewQuestionContainer.style.display = 'block';
+            }
+        }
+
+        function toggleLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            const previewQuestionContainer = document.getElementById('previewQuestionContainer');
+            const stats = document.getElementById('questionStats');
+            const curRankingBtn = document.getElementById('showRankingBtn').innerText;
+            if (leaderboard.style.display === 'none' && curRankingBtn === window.translations.ranking.toUpperCase()) {
+                leaderboard.style.display = 'block';
+                previewQuestionContainer.style.display = 'none';
+                
+                showingLeaderboard = true;
+                
+                const rankingBtn = testData.isAdmin ? 
+                    document.getElementById('showRankingBtn') : 
+                    document.getElementById('playerRankingBtn');
+                    
+                if (rankingBtn) {
+                    rankingBtn.innerHTML = `<i class="fas fa-eye me-1"></i>${window.translations.quiz || 'Quiz'}`;
+                }
+                
+                socket.emit(testData.isAdmin ? 'admin:get_leaderboard' : 'participant:get_leaderboard', {
+                    testCode: testData.testCode
+                });
+            } else {
+                leaderboard.style.display = 'none';
+                previewQuestionContainer.style.display = 'block';
+                
+                showingLeaderboard = false;
+                
+                const rankingBtn = testData.isAdmin ? 
+                    document.getElementById('showRankingBtn') : 
+                    document.getElementById('playerRankingBtn');
+                    
+                if (rankingBtn) {
+                    rankingBtn.innerHTML = `<i class="fas fa-trophy me-1"></i>${window.translations.ranking}`;
+                }
+            }
+            if (stats) stats.style.display = 'none';
+        }
+
+        // Completion Summary Functions - ONLY FOR PARTICIPANTS
+        function showCompletionSummary() {
+            // Calculate stats from current game
+            const correctCount = getCorrectAnswersCount();
+            const totalTime = Date.now() - (testStartTime || Date.now());
+            
+            // Hide other sections
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('waitingRoom').style.display = 'none';
+            
+            // Show completion summary
+            const summary = document.getElementById('completionSummary');
+            document.getElementById('finalScore').textContent = playerScore;
+            document.getElementById('correctAnswers').textContent = `${correctCount}/${testData.quiz.questions.length}`;
+            document.getElementById('totalTime').textContent = formatTime(totalTime);
+            summary.style.display = 'block';
+        }
+
+        function getCorrectAnswersCount() {
+            // This is an approximation - in real implementation you might track this
+            // For now, estimate based on score (assuming ~10-20 points per correct answer)
+            return Math.floor(playerScore / 15);
+        }
+
+        function formatTime(milliseconds) {
+            const minutes = Math.floor(milliseconds / 60000);
+            const seconds = Math.floor((milliseconds % 60000) / 1000);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function viewResults() {
+            window.location.href = `/test/results/${testData.testCode}`;
+        }
+
+        // Track test start time for participants
+        let testStartTime = 0;
+        
+        // Update handleTestStarted to track start time
+        const originalHandleTestStarted = handleTestStarted;
+        handleTestStarted = function(data) {
+            testStartTime = Date.now(); // Track when test actually starts for participant
+            originalHandleTestStarted(data);
+        };
+    </script>
+</body>
+</html>

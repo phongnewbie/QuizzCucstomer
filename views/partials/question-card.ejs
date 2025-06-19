@@ -1,0 +1,119 @@
+<div class="card question-card mb-4" id="question<%= questionNum %>">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div class="question-number me-3"><%= questionNum %></div>
+            <h5 class="mb-0">Question <%= questionNum %></h5>
+        </div>
+        <div class="question-actions">
+            <div class="btn-group-vertical action-buttons">
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="moveQuestion(<%= questionNum %>, 'up')" 
+                        title="Move Up">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="moveQuestion(<%= questionNum %>, 'down')" 
+                        title="Move Down">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="translateContent(<%= questionNum %>)" 
+                        title="Translate">
+                    <i class="fas fa-language"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                        onclick="deleteQuestion(<%= questionNum %>)" 
+                        title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="question<%= questionNum %>Content" class="form-label fw-semibold">Question Content *</label>
+                    <textarea class="form-control" 
+                             id="question<%= questionNum %>Content" 
+                             rows="3" 
+                             placeholder="Enter your question here..."
+                             required><%= question?.content || '' %></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="question<%= questionNum %>Type" class="form-label fw-semibold">Question Type *</label>
+                    <select class="form-select" 
+                            id="question<%= questionNum %>Type" 
+                            onchange="toggleAnswerOptions(<%= questionNum %>)">
+                        <option value="multiple_choice" 
+                                <%= (question?.type || 'multiple_choice') === 'multiple_choice' ? 'selected' : '' %>>
+                            Multiple Choice A/B/C/D
+                        </option>
+                        <option value="text_input" 
+                                <%= question?.type === 'text_input' ? 'selected' : '' %>>
+                            Text Input
+                        </option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="question<%= questionNum %>Image" class="form-label fw-semibold">Question Image</label>
+                    <input type="file" 
+                           class="form-control" 
+                           id="question<%= questionNum %>Image" 
+                           accept="image/*" 
+                           onchange="previewImage(<%= questionNum %>)">
+                </div>
+                <div id="imagePreview<%= questionNum %>" class="image-preview">
+                    <% if (question?.image) { %>
+                        <div class="position-relative">
+                            <img src="<%= question.image %>" class="img-fluid rounded">
+                            <button type="button" 
+                                    class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1" 
+                                    onclick="deleteImage(<%= questionNum %>)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    <% } else { %>
+                        <i class="fas fa-image fa-2x text-muted mb-2"></i>
+                        <div class="text-muted small">Image preview will appear here</div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <div id="answerOptions<%= questionNum %>" 
+             style="display: <%= (question?.type || 'multiple_choice') === 'multiple_choice' ? 'block' : 'none' %>;">
+            <h6 class="text-primary mb-3">Answer Options</h6>
+            <div class="row g-3">
+                <% ['A', 'B', 'C', 'D'].forEach(letter => { %>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <input type="radio" 
+                                       name="correctAnswer<%= questionNum %>" 
+                                       value="<%= letter %>" 
+                                       class="form-check-input"
+                                       <%= question?.correctAnswer?.includes(letter) ? 'checked' : '' %>>
+                            </span>
+                            <span class="input-group-text fw-bold"><%= letter %></span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   placeholder="Option <%= letter %>" 
+                                   id="question<%= questionNum %>Option<%= letter %>"
+                                   value="<%= question?.options?.find(opt => opt.letter === letter)?.text || '' %>">
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>Select the radio button next to the correct answer
+                </small>
+            </div>
+        </div>
+    </div>
+</div>

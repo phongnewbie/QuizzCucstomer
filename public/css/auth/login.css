@@ -1,0 +1,438 @@
+:root {
+    --primary-blue: #1e88e5;
+    --dark-blue: #1565c0;
+    --light-blue: #42a5f5;
+    --accent-blue: #0d47a1;
+    --white: #ffffff;
+    --light-gray: #f5f5f5;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --border-color: #e0e0e0;
+}
+
+* {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--primary-blue);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+}
+
+.login-wrapper {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 850px; /* Changed from 700px to 850px (85% of 1000px) */
+    width: 100%;
+    min-height: 510px; /* Changed from 420px to 510px (85% of 600px) */
+    display: flex;
+    position: relative;
+    transform: scale(0.85); /* Scale up to 85% */
+    transform-origin: center;
+}
+
+.welcome-section {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--dark-blue) 100%);
+    flex: 1;
+    padding: 51px 42.5px; /* Changed from 42px 35px to 51px 42.5px (85% of 60px 50px) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 340px; /* Changed from 280px to 340px (85% of 400px) */
+    height: 340px; /* Changed from 280px to 340px (85% of 400px) */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -30%;
+    width: 170px; /* Changed from 140px to 170px (85% of 200px) */
+    height: 170px; /* Changed from 140px to 170px (85% of 200px) */
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.logo {
+    position: absolute;
+    top: 25.5px; /* Changed from 21px to 25.5px (85% of 30px) */
+    left: 25.5px; /* Changed from 21px to 25.5px (85% of 30px) */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Changed from 8px to 10px (85% of 12px) */
+    z-index: 2;
+}
+
+.logo-icon {
+    width: 38px; /* Changed from 32px to 38px (85% of 45px) */
+    height: 38px; /* Changed from 32px to 38px (85% of 45px) */
+    background: var(--white);
+    border-radius: 8.5px; /* Changed from 7px to 8.5px (85% of 10px) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px; /* Changed from 14px to 17px (85% of 20px) */
+    box-shadow: 0 3.5px 10px rgba(0, 0, 0, 0.1); /* Adjusted shadow */
+}
+
+.logo-text {
+    color: var(--white);
+    font-size: 1.2rem; /* Changed from 1rem to 1.2rem (85% of 1.4rem) */
+    font-weight: 600;
+    letter-spacing: -0.4px; /* Changed from -0.3px to -0.4px (85% of -0.5px) */
+}
+
+.welcome-content {
+    color: var(--white);
+    z-index: 2;
+    position: relative;
+}
+
+.welcome-title {
+    font-size: 2.55rem; /* Changed from 2.1rem to 2.55rem (85% of 3rem) */
+    font-weight: 700;
+    margin-bottom: 17px; /* Changed from 14px to 17px (85% of 20px) */
+    line-height: 1.2;
+}
+
+.welcome-subtitle {
+    font-size: 1.275rem; /* Changed from 1.05rem to 1.275rem (85% of 1.5rem) */
+    font-weight: 500;
+    margin-bottom: 25.5px; /* Changed from 21px to 25.5px (85% of 30px) */
+    opacity: 0.9;
+}
+
+.welcome-description {
+    font-size: 0.85rem; /* Keep same as before (already close to 85% of 1rem) */
+    line-height: 1.55; /* Changed from 1.5 to 1.55 (closer to 85% of 1.6) */
+    opacity: 0.8;
+    max-width: 340px; /* Changed from 280px to 340px (85% of 400px) */
+}
+
+.form-section {
+    flex: 1;
+    padding: 51px 42.5px; /* Changed from 42px 35px to 51px 42.5px (85% of 60px 50px) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-header {
+    margin-bottom: 34px; /* Changed from 28px to 34px (85% of 40px) */
+}
+
+.form-title {
+    font-size: 1.7rem; /* Changed from 1.4rem to 1.7rem (85% of 2rem) */
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 8.5px; /* Changed from 7px to 8.5px (85% of 10px) */
+}
+
+.form-description {
+    color: var(--text-light);
+    font-size: 0.8rem; /* Keep similar (close to 85% of 0.95rem) */
+}
+
+.form-group {
+    margin-bottom: 21px; /* Changed from 17.5px to 21px (closer to 85% of 25px) */
+    position: relative;
+}
+
+.form-control {
+    border: 2px solid var(--border-color);
+    border-radius: 7px; /* Changed from 6px to 7px (closer to 85% of 8px) */
+    padding: 12.75px 17px; /* Changed from 10.5px 14px to 12.75px 17px (85% of 15px 20px) */
+    font-size: 0.85rem; /* Keep similar (close to 85% of 1rem) */
+    width: 100%;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+.form-control::placeholder {
+    color: var(--text-light);
+}
+
+.input-icon {
+    position: absolute;
+    left: 17px; /* Changed from 14px to 17px (85% of 20px) */
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 0.95rem; /* Changed from 0.9rem to 0.95rem (closer to 85% of 1.1rem) */
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-clear-button,
+input[type="password"]::-webkit-inner-spin-button {
+    display: none !important;
+    appearance: none;
+}
+
+.form-control.with-icon {
+    padding-left: 42.5px; /* Changed from 35px to 42.5px (85% of 50px) */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 17px; /* Changed from 14px to 17px (85% of 20px) */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.85rem; /* Keep similar (85% of 1rem) */
+}
+
+.password-toggle:hover {
+    color: var(--primary-blue);
+}
+
+.checkbox-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25.5px; /* Changed from 21px to 25.5px (85% of 30px) */
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8.5px; /* Changed from 7px to 8.5px (85% of 10px) */
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 15px; /* Changed from 14px to 15px (closer to 85% of 18px) */
+    height: 15px; /* Changed from 14px to 15px (closer to 85% of 18px) */
+    accent-color: var(--primary-blue);
+}
+
+.checkbox-group label {
+    color: var(--text-light);
+    font-size: 0.77rem; /* Changed from 0.75rem to 0.77rem (closer to 85% of 0.9rem) */
+    cursor: pointer;
+}
+
+.forgot-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 0.77rem; /* Changed from 0.75rem to 0.77rem (closer to 85% of 0.9rem) */
+    font-weight: 500;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+.btn-signin {
+    background: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    border-radius: 7px; /* Changed from 6px to 7px (closer to 85% of 8px) */
+    padding: 12.75px 25.5px; /* Changed from 10.5px 21px to 12.75px 25.5px (85% of 15px 30px) */
+    font-size: 0.85rem; /* Keep similar (85% of 1rem) */
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 17px; /* Changed from 14px to 17px (85% of 20px) */
+}
+
+.btn-signin:hover {
+    background: var(--dark-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(30, 136, 229, 0.3);
+}
+
+.btn-signin:active {
+    transform: translateY(0);
+}
+
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border-color);
+}
+
+.divider span {
+    background: var(--white);
+    padding: 0 20px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.btn-alternate {
+    background: var(--white);
+    color: var(--text-dark);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.btn-alternate:hover {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+.signup-link {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.signup-link a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+        max-width: 380px; /* Changed from 315px to 380px (85% of 450px) */
+        min-height: auto;
+        transform: scale(0.9); /* Changed from 0.85 to 0.9 for better mobile experience */
+    }
+    
+    .welcome-section {
+        padding: 34px 25.5px; /* Changed from 28px 21px to 34px 25.5px (85% of 40px 30px) */
+        text-align: center;
+    }
+    
+    .welcome-title {
+        font-size: 2.125rem; /* Changed from 1.75rem to 2.125rem (85% of 2.5rem) */
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.02rem; /* Changed from 0.85rem to 1.02rem (85% of 1.2rem) */
+    }
+    
+    .form-section {
+        padding: 34px 25.5px; /* Changed from 28px 21px to 34px 25.5px (85% of 40px 30px) */
+    }
+    
+    .form-title {
+        font-size: 1.53rem; /* Changed from 1.25rem to 1.53rem (85% of 1.8rem) */
+    }
+    
+    .logo {
+        position: static;
+        margin: 0 auto 25.5px; /* Changed from 21px to 25.5px (85% of 30px) */
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 8.5px; /* Changed from 7px to 8.5px (85% of 10px) */
+    }
+    
+    .welcome-section,
+    .form-section {
+        padding: 25.5px 17px; /* Changed from 21px 14px to 25.5px 17px (85% of 30px 20px) */
+    }
+    
+    .welcome-title {
+        font-size: 1.7rem; /* Changed from 1.4rem to 1.7rem (85% of 2rem) */
+    }
+    
+    .form-title {
+        font-size: 1.275rem; /* Changed from 1.05rem to 1.275rem (85% of 1.5rem) */
+    }
+}
+
+/* Loading Animation */
+.btn-signin.loading {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.btn-signin.loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+    border: 2px solid transparent;
+    border-top-color: var(--white);
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Fade in animation */
+/* .login-wrapper {
+    animation: fadeInUp 0.8s ease-out;
+} */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

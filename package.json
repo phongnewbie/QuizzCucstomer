@@ -1,0 +1,48 @@
+{
+  "name": "quizz_app",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Quiz Management System with Authentication",
+  "dependencies": {
+    "argon2": "^0.41.1",
+    "body-parser": "^2.2.0",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.0",
+    "i18next": "^25.2.1",
+    "i18next-fs-backend": "^2.6.0",
+    "i18next-http-middleware": "^3.7.4",
+    "mongoose": "^7.8.7",
+    "multer": "^2.0.0",
+    "pg": "^8.16.0",
+    "qrcode": "^1.4.4",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "quiz",
+    "education",
+    "nodejs",
+    "express",
+    "mongodb",
+    "ejs",
+    "authentication",
+    "bcrypt"
+  ]
+}

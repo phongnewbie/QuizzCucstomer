@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    
+    <style>
+                :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .join-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .join-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .join-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border: none;
+            position: relative;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(25%, -25%);
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.75rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .test-code-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* NEW: Mode indicator */
+        .mode-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 3;
+        }
+
+        .mode-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-online {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .mode-offline {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .test-info {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .test-info-title {
+            color: var(--info-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--info-color);
+            display: block;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: white;
+            outline: none;
+        }
+
+        .form-floating > label {
+            color: #64748b;
+            font-weight: 500;
+            left: 1.25rem;
+        }
+
+        .btn-join {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-join::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-join:hover::before {
+            left: 100%;
+        }
+
+        .btn-join:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-join:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .alert-custom {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-info-custom {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-left: 4px solid var(--info-color);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .join-container {
+                padding: 0 10px;
+            }
+            
+            .card-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .card-body {
+                padding: 1.5rem 1rem;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        #languageDropdown {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            margin-bottom: 10px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="join-container fade-in">
+        <div class="card join-card">
+            <div class="card-header">
+
+                <div class="header-icon">
+                    <% if (test.mode === 'online') { %>
+                        <i class="fas fa-rocket"></i>
+                    <% } else { %>
+                        <i class="fas fa-clock"></i>
+                    <% } %>
+                </div>
+                <h1 class="card-title"><%= t('test:join_test') %></h1>
+                <div class="test-code-badge"><%= test.testCode %></div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Language Switcher -->
+                <div class="language-switcher-container" style="text-align: start;">
+                    <%- include('../partials/language-switcher') %>
+                </div>
+                <!-- Instructions -->
+                <div class="alert alert-custom alert-info-custom">
+                    <div class="d-flex align-items-start">
+                        <div>
+                            <i class="fas fa-lightbulb me-3 mt-1"></i>
+                            <strong><%= t('common:instructions') || 'Instructions' %>:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><%= t('test:enter_name_to_join') || 'Enter your name to join the test' %></li>
+                                <% if (test.mode === 'online') { %>
+                                    <li><%= t('test:waiting_room_info') || "You'll be placed in a waiting room until the test starts" %></li>
+                                    <li><%= t('test:follow_instructor') || "Follow along with the instructor's guidance" %></li>
+                                <% } else { %>
+                                    <li><%= t('test:start_immediately') || "You'll start the test immediately after joining" %></li>
+                                    <li><%= t('test:complete_own_pace') || 'Complete the test at your own pace' %></li>
+                                    <li><%= t('test:auto_advance') || 'Questions will auto-advance when time expires' %></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Join Form -->
+                <form id="joinTestForm">
+                    <!-- Show error message if any -->
+                    <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+                    <div class="form-floating">
+                        <input type="text" 
+                               class="form-control" 
+                               id="participantName" 
+                               name="participantName"
+                               placeholder="<%= t('test:enter_name') %>" 
+                               maxlength="50"
+                               required>
+                        <label for="participantName"><%= t('test:enter_name') %></label>
+                    </div>
+
+                    <button type="submit" class="btn btn-join" id="joinTestBtn">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        <% if (test.mode === 'online') { %>
+                            <%= t('test:join_test_room') || 'Join Test Room' %>
+                        <% } else { %>
+                            <%= t('test:start_test') %>
+                        <% } %>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translation object for JavaScript -->
+    <script>
+        window.translations = {
+            lng: '<%= lng %>',
+            // Test translations
+            testCode: '<%= t("test:test_code") %>',
+            testNotFound: '<%= t("error:test_not_found") %>',
+            invalidName: '<%= t("test:invalid_name") || "Invalid Name" %>',
+            nameRequired: '<%= t("test:name_required") || "Please enter a name with at least 2 characters." %>',
+            preparing: '<%= t("test:preparing") || "Preparing..." %>',
+            
+            // Success messages
+            readyToJoin: '<%= t("test:ready_to_join") || "Ready to Join!" %>',
+            readyToStart: '<%= t("test:ready_to_start") || "Ready to Start!" %>',
+            redirectingToRoom: '<%= t("test:redirecting_to_room") || "Redirecting to test room..." %>',
+            startingQuiz: '<%= t("test:starting_quiz") || "Starting your quiz now..." %>',
+            
+            // Error messages
+            validationFailed: '<%= t("error:validation_failed") %>',
+            checkInformation: '<%= t("test:check_information") || "Please check your information and try again." %>',
+            nameUnavailable: '<%= t("test:name_unavailable") || "Name Unavailable" %>',
+            nameAlreadyTaken: '<%= t("test:name_already_taken") || "This name is already being used by another participant. Please choose a different name." %>',
+            testFull: '<%= t("test:test_full") %>',
+            testFullMessage: '<%= t("test:test_full_text") %>',
+            testStarted: '<%= t("test:test_started") || "Test Started" %>',
+            testAlreadyStarted: '<%= t("test:test_already_started") || "This test has already started and is no longer accepting new participants." %>',
+            testInProgress: '<%= t("test:test_in_progress") || "This test session is currently in progress." %>',
+            testNotFoundTitle: '<%= t("error:test_not_found") %>',
+            testNotFoundMessage: '<%= t("test:test_code_invalid") || "No test found with this code. Please check the code and try again." %>',
+            testNotStarted: '<%= t("test:test_not_started") %>',
+            testNotStartedMessage: '<%= t("test:test_scheduled_wait") || "This test is scheduled but has not started yet. Please wait for the scheduled start time." %>',
+            testExpired: '<%= t("test:test_ended") %>',
+            testExpiredMessage: '<%= t("test:test_session_ended") || "This test session has ended and is no longer available." %>',
+            testCancelled: '<%= t("test:test_cancelled") || "Test Cancelled" %>',
+            testCancelledMessage: '<%= t("test:test_cancelled_admin") || "This test session has been cancelled by the administrator." %>',
+            tryAgain: '<%= t("common:try_again") || "Try Again" %>',
+            
+            // Character counter
+            characters: '<%= t("test:characters") || "characters" %>',
+            
+            // Common
+            error: '<%= t("common:error") %>',
+            success: '<%= t("common:success") %>',
+            loading: '<%= t("common:loading") %>'
+        };
+    </script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('joinTestForm');
+            const nameInput = document.getElementById('participantName');
+            const joinBtn = document.getElementById('joinTestBtn');
+            const testCode = '<%= test.testCode %>';
+            const testMode = '<%= test.mode %>';
+            let isSubmitting = false;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (isSubmitting) return;
+                
+                const participantName = nameInput.value.trim();
+                
+                if (participantName.length < 2) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: window.translations.invalidName,
+                        text: window.translations.nameRequired,
+                        confirmButtonColor: '#667eea'
+                    });
+                    return;
+                }
+
+                isSubmitting = true;
+
+                // Show loading state
+                const originalContent = joinBtn.innerHTML;
+                joinBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + window.translations.preparing;
+                joinBtn.disabled = true;
+
+                // First validate test availability and name uniqueness
+                fetch('/test/validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        testCode: testCode, 
+                        participantName: participantName 
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Store participant data for room page
+                        sessionStorage.setItem('testSession', JSON.stringify({
+                            testCode: testCode,
+                            participantName: participantName,
+                            readyToJoin: true, // Flag to indicate ready to join
+                            validated: true,   // Flag to indicate validation passed
+                            timestamp: Date.now() // For session timeout
+                        }));
+
+                        // Show enhanced success message with mode-specific messaging
+                        const successTitle = testMode === 'online' ? window.translations.readyToJoin : window.translations.readyToStart;
+                        const successText = testMode === 'online' ? 
+                            window.translations.redirectingToRoom : 
+                            window.translations.startingQuiz;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: successTitle,
+                            text: successText,
+                            timer: 1000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Direct redirect - mode will be handled by controller
+                            window.location.href = `/test/room/${testCode}`;
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Validate test error:', error);
+                    
+                    isSubmitting = false;
+                    joinBtn.innerHTML = originalContent;
+                    joinBtn.disabled = false;
+                    
+                    let errorTitle = window.translations.validationFailed;
+                    let errorText = error.message || window.translations.checkInformation;
+                    
+                    // Handle specific error types with better UX
+                    if (error.message && error.message.includes('name is already taken')) {
+                        errorTitle = window.translations.nameUnavailable;
+                        errorText = window.translations.nameAlreadyTaken;
+                        // Clear and focus on name input for immediate retry
+                        setTimeout(() => {
+                            nameInput.value = '';
+                            nameInput.focus();
+                            // Trigger validation
+                            nameInput.dispatchEvent(new Event('input'));
+                        }, 100);
+                    } else if (error.message && error.message.includes('Test is full')) {
+                        errorTitle = window.translations.testFull;
+                        errorText = window.translations.testFullMessage;
+                    } else if (error.message && error.message.includes('Test has already started')) {
+                        errorTitle = window.translations.testStarted;
+                        if (testMode === 'online') {
+                            errorText = window.translations.testAlreadyStarted;
+                        } else {
+                            errorText = window.translations.testInProgress;
+                        }
+                    } else if (error.message && error.message.includes('Test not found')) {
+                        errorTitle = window.translations.testNotFoundTitle;
+                        errorText = window.translations.testNotFoundMessage;
+                    } else if (error.message && error.message.includes('Test has not started yet')) {
+                        errorTitle = window.translations.testNotStarted;
+                        errorText = window.translations.testNotStartedMessage;
+                    } else if (error.message && error.message.includes('Test has expired')) {
+                        errorTitle = window.translations.testExpired;
+                        errorText = window.translations.testExpiredMessage;
+                    } else if (error.message && error.message.includes('Test has been cancelled')) {
+                        errorTitle = window.translations.testCancelled;
+                        errorText = window.translations.testCancelledMessage;
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: errorTitle,
+                        text: errorText,
+                        confirmButtonColor: '#667eea',
+                        confirmButtonText: window.translations.tryAgain
+                    });
+                });
+            });
+
+            // Initial validation
+            nameInput.dispatchEvent(new Event('input'));
+            nameInput.focus();
+
+            // Handle character counter and other existing functionality...
+            nameInput.addEventListener('input', function() {
+                const currentLength = this.value.length;
+                const maxLength = 50;
+                
+                const existingCounter = document.getElementById('nameCounter');
+                if (existingCounter) {
+                    existingCounter.remove();
+                }
+                
+                if (currentLength > 0) {
+                    const counter = document.createElement('small');
+                    counter.id = 'nameCounter';
+                    counter.className = currentLength >= maxLength ? 'text-danger' : 'text-muted';
+                    counter.textContent = `${currentLength}/${maxLength} ${window.translations.characters}`;
+                    counter.style.cssText = 'position: absolute; bottom: -20px; right: 0; font-size: 0.75rem;';
+                    
+                    this.parentElement.style.position = 'relative';
+                    this.parentElement.appendChild(counter);
+                }
+            });
+
+            // Prevent form submission on Enter if invalid
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!joinBtn.disabled) {
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                }
+            });
+
+            // Handle browser back button
+            window.addEventListener('popstate', function(event) {
+                sessionStorage.removeItem('testSession');
+            });
+        });
+    </script>
+</body>
+</html>

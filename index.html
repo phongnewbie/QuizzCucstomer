@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Option Color Preview</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Original colors for comparison */
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            
+            /* New option colors */
+            --option-a-color: #166534;
+            --option-a-light: #22c55e;
+            --option-b-color: #65a30d;
+            --option-b-light: #84cc16;
+            --option-c-color: #f59e0b;
+            --option-c-light: #fbbf24;
+            --option-d-color: #d97706;
+            --option-d-light: #f59e0b;
+            --option-e-color: #ea580c;
+            --option-e-light: #fb923c;
+            --option-f-color: #dc2626;
+            --option-f-light: #f87171;
+        }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .preview-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .preview-subtitle {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        /* Form Editor Styles */
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .option-group:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-radio.checked {
+            border-color: #10b981;
+            background: #10b981;
+        }
+
+        .option-radio.checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .option-letter.letter-a {
+            background: linear-gradient(135deg, var(--option-a-color), var(--option-a-light));
+        }
+
+        .option-letter.letter-b {
+            background: linear-gradient(135deg, var(--option-b-color), var(--option-b-light));
+        }
+
+        .option-letter.letter-c {
+            background: linear-gradient(135deg, var(--option-c-color), var(--option-c-light));
+        }
+
+        .option-letter.letter-d {
+            background: linear-gradient(135deg, var(--option-d-color), var(--option-d-light));
+        }
+
+        .option-letter.letter-e {
+            background: linear-gradient(135deg, var(--option-e-color), var(--option-e-light));
+        }
+
+        .option-letter.letter-f {
+            background: linear-gradient(135deg, var(--option-f-color), var(--option-f-light));
+        }
+
+        .option-letter.original {
+            background: var(--primary-gradient);
+        }
+
+        .option-text {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .option-group:hover .option-letter {
+            transform: scale(1.05);
+        }
+
+        /* Preview Option Styles */
+        .preview-option {
+            padding: 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .preview-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-option-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .preview-option-letter {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-right: 1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .preview-option-letter.letter-a {
+            background: linear-gradient(135deg, var(--option-a-color), var(--option-a-light));
+        }
+
+        .preview-option-letter.letter-b {
+            background: linear-gradient(135deg, var(--option-b-color), var(--option-b-light));
+        }
+
+        .preview-option-letter.letter-c {
+            background: linear-gradient(135deg, var(--option-c-color), var(--option-c-light));
+        }
+
+        .preview-option-letter.letter-d {
+            background: linear-gradient(135deg, var(--option-d-color), var(--option-d-light));
+        }
+
+        .preview-option-letter.letter-e {
+            background: linear-gradient(135deg, var(--option-e-color), var(--option-e-light));
+        }
+
+        .preview-option-letter.letter-f {
+            background: linear-gradient(135deg, var(--option-f-color), var(--option-f-light));
+        }
+
+        .preview-option-letter.original {
+            background: var(--primary-gradient);
+        }
+
+        .preview-option-text {
+            flex: 1;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .preview-option:hover .preview-option-letter {
+            transform: scale(1.1);
+        }
+
+        /* Color palette display */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .color-item {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .color-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .color-description {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .color-palette {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="preview-header">
+            <h1 class="preview-title">Quiz Option Color Preview</h1>
+            <p class="preview-subtitle">New vibrant color scheme following your color wheel design</p>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="section">
+            <h2 class="section-title">New Color Palette</h2>
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-circle letter-a"></div>
+                    <div class="color-label">Option A</div>
+                    <div class="color-description">Dark Green</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle letter-b"></div>
+                    <div class="color-label">Option B</div>
+                    <div class="color-description">Light Lime</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle letter-c"></div>
+                    <div class="color-label">Option C</div>
+                    <div class="color-description">Bright Yellow</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle letter-d"></div>
+                    <div class="color-label">Option D</div>
+                    <div class="color-description">Deep Mustard</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle letter-e"></div>
+                    <div class="color-label">Option E</div>
+                    <div class="color-description">Orange</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-circle letter-f"></div>
+                    <div class="color-label">Option F</div>
+                    <div class="color-description">Reddish Orange</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Form Editor View -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-edit"></i> Form Editor View
+                </h2>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">How options appear when creating/editing questions</p>
+                
+                <div class="option-group">
+                    <div class="option-radio checked"></div>
+                    <div class="option-letter letter-a">A</div>
+                    <div class="option-text">The Earth revolves around the Sun</div>
+                </div>
+                
+                <div class="option-group">
+                    <div class="option-radio"></div>
+                    <div class="option-letter letter-b">B</div>
+                    <div class="option-text">The Sun revolves around the Earth</div>
+                </div>
+                
+                <div class="option-group">
+                    <div class="option-radio"></div>
+                    <div class="option-letter letter-c">C</div>
+                    <div class="option-text">The Earth is stationary in space</div>
+                </div>
+                
+                <div class="option-group">
+                    <div class="option-radio"></div>
+                    <div class="option-letter letter-d">D</div>
+                    <div class="option-text">Both Earth and Sun are stationary</div>
+                </div>
+            </div>
+
+            <!-- Preview/Quiz Taking View -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="fas fa-eye"></i> Quiz Taking View
+                </h2>
+                <p style="color: #64748b; margin-bottom: 1.5rem;">How options appear to students taking the quiz</p>
+                
+                <div class="preview-option">
+                    <div class="preview-option-content">
+                        <div class="preview-option-letter letter-a">A</div>
+                        <div class="preview-option-text">The Earth revolves around the Sun</div>
+                    </div>
+                </div>
+                
+                <div class="preview-option">
+                    <div class="preview-option-content">
+                        <div class="preview-option-letter letter-b">B</div>
+                        <div class="preview-option-text">The Sun revolves around the Earth</div>
+                    </div>
+                </div>
+                
+                <div class="preview-option">
+                    <div class="preview-option-content">
+                        <div class="preview-option-letter letter-c">C</div>
+                        <div class="preview-option-text">The Earth is stationary in space</div>
+                    </div>
+                </div>
+                
+                <div class="preview-option">
+                    <div class="preview-option-content">
+                        <div class="preview-option-letter letter-d">D</div>
+                        <div class="preview-option-text">Both Earth and Sun are stationary</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extended Options Demo -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-palette"></i> Extended Options (E & F)
+            </h2>
+            <p style="color: #64748b; margin-bottom: 1.5rem;">Additional options for complex questions</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <h4 style="margin-bottom: 1rem; color: #374151;">Form Editor</h4>
+                    <div class="option-group">
+                        <div class="option-radio"></div>
+                        <div class="option-letter letter-e">E</div>
+                        <div class="option-text">Option E example</div>
+                    </div>
+                    <div class="option-group">
+                        <div class="option-radio"></div>
+                        <div class="option-letter letter-f">F</div>
+                        <div class="option-text">Option F example</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 style="margin-bottom: 1rem; color: #374151;">Quiz View</h4>
+                    <div class="preview-option">
+                        <div class="preview-option-content">
+                            <div class="preview-option-letter letter-e">E</div>
+                            <div class="preview-option-text">Option E example</div>
+                        </div>
+                    </div>
+                    <div class="preview-option">
+                        <div class="preview-option-content">
+                            <div class="preview-option-letter letter-f">F</div>
+                            <div class="preview-option-text">Option F example</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Notes -->
+        <div class="section" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(255, 255, 255, 0.95)); border: 1px solid rgba(102, 126, 234, 0.1);">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i> Implementation Benefits
+            </h2>
+            <ul style="color: #374151; line-height: 1.6;">
+                <li><strong>Visual Hierarchy:</strong> Each option has a distinct, memorable color</li>
+                <li><strong>Accessibility:</strong> High contrast maintained for text legibility</li>
+                <li><strong>Consistency:</strong> Same colors across all quiz interfaces</li>
+                <li><strong>User Experience:</strong> Intuitive color progression following natural spectrum</li>
+                <li><strong>Brand Alignment:</strong> Colors match your design system requirements</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add hover effects and interactions
+        document.querySelectorAll('.preview-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove previous selections
+                document.querySelectorAll('.preview-option').forEach(opt => {
+                    opt.style.borderColor = '#e2e8f0';
+                    opt.style.background = 'white';
+                });
+                
+                // Highlight selected
+                this.style.borderColor = '#10b981';
+                this.style.background = 'rgba(16, 185, 129, 0.05)';
+            });
+        });
+
+        // Add animation when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.option-letter, .preview-option-letter, .color-circle');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.opacity = '0';
+                    element.style.transform = 'scale(0.8)';
+                    element.style.animation = 'colorAppear 0.5s ease-out forwards';
+                }, index * 50);
+            });
+        });
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes colorAppear {
+                from {
+                    opacity: 0;
+                    transform: scale(0.8);
+                }
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<% layout = false %>
+<!DOCTYPE html>
+<html lang="<%= lng %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= isEdit ? t('quiz:edit_quiz_title') : t('quiz:create_quiz_title') %> - <%= t('common:app_name') %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/css/modern_quiz_form.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    <style>
+        #languageDropdown {
+            background: black;
+        }
+    </style>
+</head>
+<body>
+<div class="language-switcher-container" style="text-align: right;">
+    <%- include('../partials/language-switcher') %>
+</div>
+<div class="container-editor">
+    <!-- Language Switcher -->
+    
+    <!-- Auto-save indicator -->
+    <div class="auto-save" id="autoSaveIndicator">
+        <i class="fas fa-check-circle me-2"></i>
+        <span><%= isEdit ? t('quiz:changes_saved') : t('quiz:draft_saved') %></span>
+    </div>
+    
+    <div class="modern-quiz-editor">
+        <!-- Header Section -->
+        <div class="editor-header animate-fade-in">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-12">
+                        <div class="header-content">
+                            <h1 class="editor-title">
+                                <i class="fas <%= isEdit ? 'fa-edit' : 'fa-plus-circle' %> me-3"></i>
+                                <%= isEdit ? t('quiz:edit_quiz') : t('quiz:create_new_quiz') %>
+                            </h1>
+                            <p class="editor-subtitle">
+                                <%= isEdit ? t('quiz:update_quiz_subtitle') : t('quiz:create_quiz_subtitle') %>
+                            </p>
+                            <% if (isEdit) { %>
+                            <div class="quiz-meta">
+                                <span class="meta-badge">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <%= t('quiz:created') %> <%= formatDate(quiz.createdAt) %>
+                                </span>
+                                <span class="meta-badge">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <%= t('quiz:last_updated') %> <%= formatDate(quiz.updatedAt) %>
+                                </span>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-lg-start">
+                        <div class="header-actions">
+                            <a href="/quizzes" class="btn btn-outline-light me-2">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                <%= t('quiz:back_to_dashboard') %>
+                            </a>
+                            <button class="btn btn-primary-modern" onclick="previewQuiz()" data-bs-toggle="modal" data-bs-target="#previewModal">
+                                <i class="fas fa-eye me-2"></i>
+                                <%= t('quiz:preview') %>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Quiz Information Section -->
+        <div class="modern-card animate-slide-up">
+            <div class="card-header-modern">
+                <h4 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <%= t('quiz:quiz_information') %>
+                </h4>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="form-floating-modern">
+                            <input type="text" class="form-control-modern" id="quizTitle" placeholder=" " 
+                                   value="<%= isEdit ? quiz.title : '' %>" required>
+                            <label class="form-label-modern"><%= t('quiz:quiz_title') %></label>
+                        </div>
+                        
+                        <div class="row">
+                            <div>
+                                <div class="form-floating-modern">
+                                    <!-- <select class="form-control-modern" id="quizMode" onchange="toggleScheduleSettings()"> -->
+                                    <select class="form-control-modern" id="quizMode">
+                                        <option value="online" <%= isEdit && quiz.mode === 'online' ? 'selected' : '' %>><%= t('quiz:online_mode') %></option>
+                                        <option value="offline" <%= isEdit && quiz.mode === 'offline' ? 'selected' : '' %>><%= t('quiz:scheduled_mode') %></option>
+                                    </select>
+                                    <label class="form-label-modern"><%= t('quiz:quiz_mode') %></label>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Schedule Settings -->
+                        <!-- <div id="scheduleSettings" style="display: <%= isEdit && quiz.mode === 'offline' ? 'block' : 'none' %>;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                <%= t('quiz:schedule_info') %>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating-modern">
+                                        <input type="datetime-local" class="form-control-modern" id="startTime"
+                                               value="<%= isEdit && quiz.scheduleSettings?.startTime ? new Date(quiz.scheduleSettings.startTime).toISOString().slice(0, 16) : '' %>">
+                                        <label class="form-label-modern"><%= t('quiz:start_time') %></label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating-modern">
+                                        <input type="datetime-local" class="form-control-modern" id="endTime"
+                                               value="<%= isEdit && quiz.scheduleSettings?.endTime ? new Date(quiz.scheduleSettings.endTime).toISOString().slice(0, 16) : '' %>">
+                                        <label class="form-label-modern"><%= t('quiz:end_time') %></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-flex flex-column h-100">
+                            <h6 class="text-primary mb-3"><%= t('quiz:quiz_statistics') %></h6>
+                            <div class="stat-card-mini">
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-2">
+                                    <span class="text-muted"><%= t('quiz:questions') %></span>
+                                    <span class="fw-bold" id="questionCount"><%= isEdit ? quiz.questions.length : 0 %></span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-2">
+                                    <span class="text-muted"><%= t('quiz:total_duration') %></span>
+                                    <span class="fw-bold" id="totalDuration">0 min</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                    <span class="text-muted"><%= t('quiz:status') %></span>
+                                    <span class="badge bg-<%= isEdit ? 'success' : 'warning' %>">
+                                        <%= isEdit ? t('quiz:active') : t('quiz:draft') %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Questions Section -->
+        <div class="modern-card animate-slide-up">
+            <div class="card-header-modern d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    <%= t('quiz:quiz_questions') %>
+                </h4>
+                <button class="btn btn-outline-light" onclick="addQuestion()">
+                    <i class="fas fa-plus me-2"></i>
+                    <%= t('quiz:add_question') %>
+                </button>
+            </div>
+            <div class="card-body-modern">
+                <div id="questionsContainer">
+                    <% if (isEdit && quiz.questions && quiz.questions.length > 0) { %>
+                        <% quiz.questions.forEach((question, index) => { %>
+                            <!-- Question cards will be rendered here by JavaScript -->
+                        <% }); %>
+                    <% } %>
+                </div>
+                
+                <!-- Add Question Button -->
+                <div class="add-question-btn" onclick="addQuestion()">
+                    <div class="add-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <h5 class="mb-2"><%= t('quiz:add_new_question') %></h5>
+                    <p class="text-muted mb-0">
+                        <%= isEdit ? t('quiz:click_add_another') : t('quiz:click_create_first') %>
+                    </p>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Submit Section -->
+        <div class="save-section">
+            <div class="save-card">
+                <div class="save-content">
+                    <h2 class="save-title">
+                        <%= isEdit ? t('quiz:ready_update_quiz') : t('quiz:ready_create_quiz') %>
+                    </h2>
+                    <p class="save-description">
+                        <%= isEdit ? t('quiz:review_changes_update') : t('quiz:review_before_publish') %>
+                    </p>
+                    <div class="save-actions">
+                        <button type="button" class="btn btn-outline-light btn-lg px-4" 
+                                data-bs-toggle="modal" data-bs-target="#previewModal" 
+                                onclick="previewQuiz()">
+                            <i class="fas fa-eye me-2"></i><%= t('quiz:preview_quiz') %>
+                        </button>
+                        <button type="button" class="btn btn btn-success-modern" onclick="<%= isEdit ? 'updateQuiz()' : 'publishQuiz()' %>">
+                            <i class="fas fa-<%= isEdit ? 'check-circle' : 'rocket' %> me-2"></i>
+                            <%= isEdit ? t('quiz:update_quiz') : t('quiz:publish_quiz') %>
+                        </button>
+                    </div>
+                </div>
+                <div class="save-icon">
+                    <i class="fas fa-<%= isEdit ? 'save' : 'magic' %>"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Updated Preview Modal - Single Question Display -->
+<div class="modal fade preview-modal" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <div class="w-100">
+                    <div class="quiz-info-preview">
+                        <div class="quiz-info-content">
+                            <h4 class="mb-3"><%= t('quiz:quiz') %>: <span id="previewTitle"></span></h4>
+                            <p class="mb-2"><i class="fas fa-globe me-1"></i><strong><%= t('quiz:mode') %>:</strong> <span id="previewMode"></span></p>
+                            <p class="mb-2"><i class="fas fa-question-circle me-1"></i><strong><%= t('quiz:questions') %>:</strong> <span id="previewQuestionProgress"></span></p>
+                        </div>
+                        <div class="quiz-timer-section">
+                            <div class="timer-display">
+                                <div class="timer-circle" id="timerCircle">
+                                    <span class="timer-text" id="timerText"><span id="timerMinutes">00</span>:<span id="timerSeconds">30</span></span>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-2"><%= t('quiz:time_remaining') %></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress mt-3" style="height: 20px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%" 
+                             id="previewProgress" aria-valuenow="0" aria-valuemin="0" 
+                             aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Question Display -->
+                <div id="previewQuestionContainer">
+                    <!-- Single question will be displayed here -->
+                </div>
+                
+                <!-- Navigation -->
+                <div class="preview-navigation text-center mt-4">
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                        <%= t('quiz:next') %><i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+                    <button class="btn btn-success" id="finishBtn" onclick="finishQuiz()" style="display: none;">
+                        <i class="fas fa-flag-checkered me-1"></i><%= t('quiz:finish_quiz') %>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i><%= t('quiz:close_preview') %>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Translation object for JavaScript -->
+<script>
+window.translations = {
+    lng: '<%= lng %>',
+    // Form translations
+    questionLabel: '<%= t("quiz:question") %>',
+    questionContent: '<%= t("quiz:question_content") %>',
+    answerTime: '<%= t("quiz:answer_time_seconds") %>',
+    uploadImage: '<%= t("quiz:upload_image") %>',
+    clickSelectImage: '<%= t("quiz:click_select_image") %>',
+    remove: '<%= t("quiz:remove") %>',
+    answerOptions: '<%= t("quiz:answer_options") %>',
+    removeOption: '<%= t("quiz:remove_option") %>',
+    addOption: '<%= t("quiz:add_option") %>',
+    enterOption: '<%= t("quiz:enter_option") %>',
+    moveUp: '<%= t("quiz:move_up") %>',
+    moveDown: '<%= t("quiz:move_down") %>',
+    duplicate: '<%= t("quiz:duplicate") %>',
+    delete: '<%= t("quiz:delete") %>',
+    
+    // Validation messages
+    enterQuizTitle: '<%= t("quiz:enter_quiz_title") %>',
+    addAtLeastOneQuestion: '<%= t("quiz:add_at_least_one_question") %>',
+    questionEmpty: '<%= t("quiz:question_empty") %>',
+    needTwoOptions: '<%= t("quiz:need_two_options") %>',
+    needValidAnswer: '<%= t("quiz:need_valid_answer") %>',
+    
+    // Action messages
+    deleteQuestion: '<%= t("quiz:delete_question") %>',
+    deleteQuestionConfirm: '<%= t("quiz:delete_question_confirm") %>',
+    yesDelete: '<%= t("quiz:yes_delete") %>',
+    cancel: '<%= t("common:cancel") %>',
+    questionDeleted: '<%= t("quiz:question_deleted") %>',
+    questionDuplicated: '<%= t("quiz:question_duplicated") %>',
+    questionMoved: '<%= t("quiz:question_moved") %>',
+    cannotMove: '<%= t("quiz:cannot_move") %>',
+    alreadyAt: '<%= t("quiz:already_at") %>',
+    top: '<%= t("quiz:top") %>',
+    bottom: '<%= t("quiz:bottom") %>',
+    up: '<%= t("quiz:up") %>',
+    down: '<%= t("quiz:down") %>',
+    
+    // Preview messages
+    noQuestions: '<%= t("quiz:no_questions_preview") %>',
+    previewComplete: '<%= t("quiz:preview_complete") %>',
+    reviewedAllQuestions: '<%= t("quiz:reviewed_all_questions") %>',
+    restartPreview: '<%= t("quiz:restart_preview") %>',
+    exitPreview: '<%= t("quiz:exit_preview") %>',
+    
+    // Save messages
+    publishQuiz: '<%= t("quiz:publish_quiz") %>',
+    publishConfirm: '<%= t("quiz:publish_confirm") %>',
+    publishConfirmText: '<%= t("quiz:publish_confirm_text") %>',
+    yesPublish: '<%= t("quiz:yes_publish") %>',
+    updateQuiz: '<%= t("quiz:update_quiz") %>',
+    updateConfirm: '<%= t("quiz:update_confirm") %>',
+    updateConfirmText: '<%= t("quiz:update_confirm_text") %>',
+    yesUpdate: '<%= t("quiz:yes_update") %>',
+    publishing: '<%= t("quiz:publishing") %>',
+    publishingText: '<%= t("quiz:publishing_text") %>',
+    updating: '<%= t("quiz:updating") %>',
+    updatingText: '<%= t("quiz:updating_text") %>',
+    quizPublished: '<%= t("quiz:quiz_published") %>',
+    quizPublishedText: '<%= t("quiz:quiz_published_text") %>',
+    quizUpdated: '<%= t("quiz:quiz_updated") %>',
+    quizUpdatedText: '<%= t("quiz:quiz_updated_text") %>',
+    viewQuizDashboard: '<%= t("quiz:view_quiz_dashboard") %>',
+    error: '<%= t("common:error") %>',
+    failedSaveQuiz: '<%= t("quiz:failed_save_quiz") %>',
+    
+    // Draft messages
+    draftFound: '<%= t("quiz:draft_found") %>',
+    restoreDraftConfirm: '<%= t("quiz:restore_draft_confirm") %>',
+    restoreDraft: '<%= t("quiz:restore_draft") %>',
+    startFresh: '<%= t("quiz:start_fresh") %>',
+    draftRestored: '<%= t("quiz:draft_restored") %>',
+    
+    // Copy labels
+    copy: '<%= t("quiz:copy") %>'
+};
+
+// Initialize quiz data safely
+window.quizFormConfig = {
+    isEdit: <%= isEdit ? 'true' : 'false' %>,
+    <% if (isEdit) { %>
+    quizId: '<%= quiz._id %>',
+    initialData: {
+        title: <%- JSON.stringify(quiz.title) %>,
+        mode: '<%= quiz.mode %>',
+        language: '<%= quiz.language %>',
+        scheduleSettings: <%- JSON.stringify(quiz.scheduleSettings || null) %>,
+        questions: <%- JSON.stringify(quiz.questions.map((question, index) => ({
+            id: index + 1,
+            content: question.content,
+            answerTime: question.answerTime || 30,
+            options: question.options || [],
+            correctAnswer: question.correctAnswer || '',
+            image: question.image || null
+        }))) %>
+    }
+    <% } else { %>
+    quizId: null,
+    initialData: null
+    <% } %>
+};
+</script>
+
+<script src="/js/form.js"></script>
+</body>
+</html>

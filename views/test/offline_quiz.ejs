@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="<%= lng %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - <%= t('common:app_name') %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/css/modern_quiz_form.css" rel="stylesheet">
+    <link href="/css/quiz_preview.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-radius: 16px;
+            --border-radius-lg: 20px;
+            --border-radius-sm: 8px;
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }   
+        .test-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .test-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(25%, -25%);
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .test-info {
+            position: relative;
+            z-index: 2;
+        }
+
+        .participant-score {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            display: block;
+        }
+
+        .score-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .waiting-room {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .waiting-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .participants-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .participant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+
+        .preview-option.submitted {
+            border: 3px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        .preview-option.pulse-selection {
+            animation: pulseSelection 0.6s ease-in-out;
+        }
+        @keyframes pulseSelection {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.02); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .test-header {
+                padding: 1rem;
+            }
+        }@keyframes pulseSelection {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.02); }
+        }
+
+        /* Styling cho trạng thái disabled sau khi submit */
+        .preview-option.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+            filter: grayscale(0.3);
+        }
+
+        /* Override cho option đã submit để vẫn hiển thị rõ */
+        .preview-option.submitted.disabled {
+            opacity: 1 !important;
+            filter: none !important;
+        }
+
+        /* Styling cho submission notification */
+        #submissionNotification {
+            border-radius: 12px;
+            border: 2px solid #10b981;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        #submissionNotification.alert-success {
+            color: #059669;
+            border-color: #10b981;
+        }
+
+        #submissionNotification.alert-warning {
+            color: #d97706;
+            border-color: #f59e0b;
+            background: rgba(254, 252, 232, 0.95) !important;
+        }
+
+        /* Icon status trong option */
+        .preview-option-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive design cho notification */
+        @media (max-width: 576px) {
+            #submissionNotification {
+                min-width: 280px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                top: 80px;
+            }
+        }
+
+        /* Loading state cho options khi đang submit */
+        .preview-option.submitting {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .preview-option.submitting::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #10b981;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        /* Success checkmark animation */
+        .preview-option-status .fa-check {
+            animation: checkmarkPop 0.5s ease-out;
+        }
+
+        @keyframes checkmarkPop {
+            0% { 
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Timer warning states */
+        .timer-circle.submitted {
+            border-color: #10b981 !important;
+        }
+
+        .timer-circle.submitted .timer-text {
+            color: #10b981 !important;
+        }
+
+        /* Waiting state styling */
+        .waiting-for-others {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            color: #0369a1;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .waiting-for-others .spinner-border {
+            width: 1.2rem;
+            height: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Hide question content partially after submission */
+        .question-submitted .preview-question-content {
+            opacity: 0.8;
+        }
+
+        .question-submitted .preview-options {
+            pointer-events: none;
+        }
+
+        .question-submitted .preview-options .preview-option:not(.submitted) {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        /* Smooth transitions */
+        .preview-option {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .preview-option:hover:not(.disabled):not(.submitted) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Auto-advance notice */
+        .auto-advance-notice {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .auto-advance-timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--warning-color);
+            margin-top: 0.5rem;
+        }
+
+        /* Completion summary */
+        .completion-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .btn-finish-test {
+            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-top: 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-finish-test:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        /* Language switcher positioning */
+        .language-switcher-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        /* Responsive design for language switcher */
+        @media (max-width: 768px) {
+            .language-switcher-container {
+                top: 5px;
+                right: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid quiz-preview-container" style="padding: 10px;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <!-- Test Header -->
+                <div class="test-header">
+                    <div class="test-info">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="h3 mb-1">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <%= quiz.title %> (<%= t('test:complete_own_pace') %>)
+                                </h1>
+                                <p class="mb-0 opacity-75">
+                                    <%= t('test:test_code') %>: <strong><%= test.testCode %></strong> | 
+                                    <%= t('test:quiz_number') %> #<%= test.quizNumber %> | 
+                                    <%= quiz.questions.length %> <%= t('quiz:questions') %>
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="participant-score">
+                                    <span class="score-value" id="playerScore">0</span>
+                                    <div class="score-label"><%= t('test:your_score') %></div>
+                                </div>
+                                <!-- Timer Section -->
+                                <div class="quiz-timer-section">
+                                    <div class="quiz-timer-compact">
+                                        <div class="timer-circle" id="timerCircle">
+                                            <span class="timer-text" id="timerText">
+                                                <span id="timerMinutes">00</span>:<span id="timerSeconds">30</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto-advance Notice (hidden initially) -->
+                <div id="autoAdvanceNotice" class="auto-advance-notice" style="display: none;">
+                    <div>
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong><%= t('test:auto_advance') || 'Time\'s up!' %></strong> <%= t('test:moving_to_next') || 'Moving to next question automatically...' %>
+                    </div>
+                    <div class="auto-advance-timer" id="autoAdvanceTimer">3</div>
+                </div>
+
+                <!-- Quiz Content -->
+                <div id="quizContent">
+                    <!-- Question Display Container -->
+                    <div id="previewQuestionContainer">
+                        <!-- Questions will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Completion Summary (hidden initially) -->
+                <div id="completionSummary" class="completion-summary" style="display: none;">
+                    <div class="completion-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3><%= t('test:test_completed_desc') %></h3>
+                    <p class="lead mb-3"><%= t('test:thank_you') %></p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4 id="finalScore">0</h4>
+                            <small class="text-muted"><%= t('test:final_score') || 'Final Score' %></small>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 id="correctAnswers">0</h4>
+                            <small class="text-muted"><%= t('test:correct_answers') %></small>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 id="totalTime">0:00</h4>
+                            <small class="text-muted"><%= t('test:total_time') || 'Total Time' %></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Data -->
+    <script id="quiz-data" type="application/json">
+        <%- JSON.stringify({
+            testCode: test.testCode,
+            participantName: participantName,
+            quiz: {
+                title: quiz.title,
+                questions: quiz.questions.map((q, i) => ({
+                    id: i,
+                    content: q.content,
+                    options: q.options,
+                    correctAnswer: q.correctAnswer,
+                    answerTime: q.answerTime || 30,
+                    image: q.image
+                }))
+            }
+        }) %>
+    </script>
+
+    <!-- Translation object for JavaScript -->
+    <script>
+        window.translations = {
+            lng: '<%= lng %>',
+            // Test translations
+            testCode: '<%= t("test:test_code") %>',
+            quizTitle: '<%= t("test:quiz_title") %>',
+            questions: '<%= t("quiz:questions") %>',
+            yourScore: '<%= t("test:your_score") %>',
+            testCompleted: '<%= t("test:test_completed") %>',
+            thankYou: '<%= t("test:thank_you") %>',
+            viewResults: '<%= t("test:view_results") %>',
+            finalScore: '<%= t("test:final_score") || "Final Score" %>',
+            correctAnswers: '<%= t("test:correct_answers") %>',
+            totalTime: '<%= t("test:total_time") || "Total Time" %>',
+            
+            // Answer feedback
+            correct: '<%= t("test:correct") %>',
+            incorrect: '<%= t("test:incorrect") %>',
+            score: '<%= t("test:score") %>',
+            
+            // Submission messages
+            answerSubmitted: '<%= t("test:answer_submitted") %>',
+            waitingForOthers: '<%= t("test:waiting_for_others") %>',
+            processing: '<%= t("test:processing") || "Processing..." %>',
+            
+            // Timer and auto-advance
+            timeUp: '<%= t("test:time_up") || "Time\'s up!" %>',
+            movingToNext: '<%= t("test:moving_to_next") || "Moving to next question automatically..." %>',
+            autoAdvance: '<%= t("test:auto_advance") || "Auto advancing" %>',
+            
+            // Navigation
+            question: '<%= t("test:question") %>',
+            nextQuestion: '<%= t("test:next_question") %>',
+            finishTest: '<%= t("test:finish_test") %>',
+            
+            // Common
+            loading: '<%= t("common:loading") %>',
+            error: '<%= t("common:error") %>',
+            success: '<%= t("common:success") %>',
+            
+            // Completion
+            greatJob: '<%= t("test:great_job") || "Great job!" %>',
+            finishedTest: '<%= t("test:finished_test") || "You\'ve finished the test." %>',
+            detailedResults: '<%= t("test:detailed_results") || "View Detailed Results" %>'
+        };
+    </script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/quiz_preview.js"></script>
+    
+    <script>
+        // Offline Quiz Logic with multilingual support
+        let quizData;
+        let currentQuestionIndex = 0;
+        let currentScore = 0;
+        let questionTimer = null;
+        let answers = [];
+        let startTime = Date.now();
+        let isAnswering = false;
+        let autoAdvanceTimer = null;
+        let hasSubmittedAnswer = false;
+        let selectedTimeRemaining = 0;
+        let isSubmitedTest = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            quizData = JSON.parse(document.getElementById('quiz-data').textContent);
+            // Start the first question immediately
+            showQuestion(0);
+        });
+
+        function showQuestion(questionIndex) {
+            if (questionIndex >= quizData.quiz.questions.length) {
+                completeTest();
+                return;
+            }
+
+            currentQuestionIndex = questionIndex;
+            const question = quizData.quiz.questions[questionIndex];
+            isAnswering = true;
+            hasSubmittedAnswer = false;
+            selectedAnswer = null;
+            selectedTimeRemaining = 0;
+            
+            // Hide auto-advance notice
+            document.getElementById('autoAdvanceNotice').style.display = 'none';
+            
+            // Display question
+            displayQuestion(question);
+            
+            // Start timer
+            timeRemaining = question.answerTime || 30;
+            startQuestionTimer();
+        }
+
+        function displayQuestion(question) {
+            const container = document.getElementById('previewQuestionContainer');
+            
+            let questionHTML = `
+                <div class="question-display-container">
+                    <div class="preview-question-header">
+                        <div class="preview-question-number">${currentQuestionIndex + 1}</div>
+                        <div class="preview-question-content">
+                            <h5 class="preview-question-title">${question.content}</h5>
+                        </div>
+                    </div>
+            `;
+            
+            if (question.image) {
+                questionHTML += `
+                    <div class="preview-question-image">
+                        <img src="${question.image}" alt="Question Image">
+                    </div>
+                `;
+            }
+            
+            questionHTML += '<div class="preview-options">';
+            question.options.forEach(option => {
+                if (option.text && option.text.trim()) {
+                    const colorClass = `letter-${option.letter.toLowerCase()}`;
+                    
+                    questionHTML += `
+                        <div class="preview-option" 
+                            data-letter="${option.letter}" 
+                            onclick="selectAnswer('${option.letter}')">
+                            <div class="preview-option-content">
+                                <div class="preview-option-letter ${colorClass}">${option.letter}</div>
+                                <div class="preview-option-text">${option.text}</div>
+                                <div class="preview-option-status"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            questionHTML += '</div></div>';
+            
+            container.innerHTML = questionHTML;
+            
+            // Apply option colors
+            setTimeout(() => {
+                if (typeof applyOptionColors === 'function') {
+                    applyOptionColors();
+                }
+            }, 100);
+        }
+
+        function selectAnswer(letter) {
+            if (!isAnswering || hasSubmittedAnswer) return;
+            
+            // Set selected answer
+            selectedAnswer = letter;
+            selectedTimeRemaining = timeRemaining;
+            
+            // Visual selection - remove previous selection
+            const options = document.querySelectorAll('.preview-option');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+                opt.classList.remove('pulse-selection');
+            });
+            
+            // Add selection to new option
+            const selectedOption = document.querySelector(`[data-letter="${selectedAnswer}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                selectedOption.classList.add('pulse-selection');
+            }
+            
+            hasSubmittedAnswer = true;
+            
+            // Submit answer to server (offline mode)
+            submitAnswerToServer(selectedAnswer, selectedTimeRemaining);
+            
+            // Show submission status
+            showSubmissionStatus();
+            
+            // Process answer offline
+            processOfflineAnswer(selectedAnswer);
+        }
+
+        function processOfflineAnswer(selectedLetter) {
+            const question = quizData.quiz.questions[currentQuestionIndex];
+            const isCorrect = question.correctAnswer === selectedLetter;
+            const points = calculatePoints(isCorrect, timeRemaining);
+            
+            // Stop timer
+            if (questionTimer) {
+                clearInterval(questionTimer);
+                questionTimer = null;
+            }
+            
+            isAnswering = false;
+            
+            // Update score
+            if (isCorrect) {
+                currentScore += points;
+                document.getElementById('playerScore').textContent = currentScore;
+            }
+            
+            // Store answer
+            answers.push({
+                questionNumber: currentQuestionIndex,
+                selectedAnswer: selectedLetter,
+                correctAnswer: question.correctAnswer,
+                isCorrect: isCorrect,
+                points: points,
+                timeRemaining: timeRemaining
+            });
+            
+            // Show answer feedback
+            showAnswerFeedback(selectedLetter, isCorrect);
+            
+            // Auto-advance after 2 seconds
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function calculatePoints(isCorrect, timeLeft) {
+            if (!isCorrect) return 0;
+            
+            const question = quizData.quiz.questions[currentQuestionIndex];
+            const totalTime = question.answerTime || 30;
+            const timePercentage = timeLeft / totalTime;
+            
+            return Math.round(10 + (10 * timePercentage));
+        }
+
+        function showAnswerFeedback(selectedLetter, isCorrect) {
+            const options = document.querySelectorAll('.preview-option');
+            const question = quizData.quiz.questions[currentQuestionIndex];
+            
+            options.forEach(option => {
+                const letter = option.getAttribute('data-letter');
+                const statusElement = option.querySelector('.preview-option-status');
+                
+                option.classList.add('disabled');
+                
+                if (letter === selectedLetter) {
+                    if (isCorrect) {
+                        option.classList.add('correct');
+                        statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+                    } else {
+                        option.classList.add('wrong');
+                        statusElement.innerHTML = '<i class="fas fa-times-circle text-danger"></i>';
+                    }
+                } else if (letter === question.correctAnswer && !isCorrect) {
+                    option.classList.add('correct');
+                    statusElement.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+                }
+            });
+        }
+
+        function startQuestionTimer() {
+            const timerElement = document.getElementsByClassName('quiz-timer-compact')[0];
+            if (timerElement) {
+                timerElement.style.display = 'block';
+            }
+            let counter = 0;
+            let intervalTime = 50;
+            let randomNumber = Math.floor(Math.random() * 1000) + 1 - intervalTime;
+            updateTimerDisplay();
+            questionTimer = setInterval(() => {
+                counter += intervalTime;
+                if (counter >= 1000) {
+                    counter = 0;
+                    timeRemaining--;
+                    updateTimerDisplay();            
+                }
+                if (timeRemaining <= 1 && counter > Math.max(randomNumber, 400)) {
+                    timeRemaining=0;
+                    counter = 0;
+                    updateTimerDisplay();
+                    handleTimeUp();
+                }
+            }, intervalTime);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            
+            const minutesEl = document.getElementById('timerMinutes');
+            const secondsEl = document.getElementById('timerSeconds');
+            
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+            
+            // Update timer circle color
+            const timerCircle = document.querySelector('.timer-circle');
+            if (timerCircle) {
+                const question = quizData.quiz.questions[currentQuestionIndex];
+                const totalTime = question ? question.answerTime : 30;
+                const percentageLeft = (timeRemaining / totalTime) * 100;
+                
+                timerCircle.classList.remove('warning', 'danger');
+                
+                if (percentageLeft <= 10) {
+                    timerCircle.classList.add('danger');
+                } else if (percentageLeft <= 30) {
+                    timerCircle.classList.add('warning');
+                }
+            }
+        }
+
+        function handleTimeUp() {
+            if (!isAnswering) return;
+            
+            if (questionTimer) {
+                clearInterval(questionTimer);
+                questionTimer = null;
+            }
+            
+            isAnswering = false;
+            
+            // No answer selected - submit null
+            answers.push({
+                questionNumber: currentQuestionIndex,
+                selectedAnswer: null,
+                correctAnswer: quizData.quiz.questions[currentQuestionIndex].correctAnswer,
+                isCorrect: false,
+                points: 0,
+                timeRemaining: 0
+            });
+            
+            submitAnswerToServer(null, 0);
+            
+            // Show auto-advance notice
+            showAutoAdvanceNotice();
+        }
+
+        function showAutoAdvanceNotice() {
+            const notice = document.getElementById('autoAdvanceNotice');
+            notice.style.display = 'block';
+            
+            let countdown = 3;
+            document.getElementById('autoAdvanceTimer').textContent = countdown;
+            
+            autoAdvanceTimer = setInterval(() => {
+                countdown--;
+                document.getElementById('autoAdvanceTimer').textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(autoAdvanceTimer);
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            if (autoAdvanceTimer) {
+                clearInterval(autoAdvanceTimer);
+                autoAdvanceTimer = null;
+            }
+            
+            const nextIndex = currentQuestionIndex + 1;
+            
+            if (nextIndex < quizData.quiz.questions.length) {
+                showQuestion(nextIndex);
+            } else {
+                completeTest();
+            }
+        }
+
+        function completeTest() {
+            // Clear any running timers
+            if (questionTimer) clearInterval(questionTimer);
+            if (autoAdvanceTimer) clearInterval(autoAdvanceTimer);
+            
+            const totalTime = Date.now() - startTime;
+            const correctCount = answers.filter(a => a.isCorrect).length;
+            
+            // Hide question container
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('autoAdvanceNotice').style.display = 'none';
+            
+            // Show completion summary
+            const summary = document.getElementById('completionSummary');
+            document.getElementById('finalScore').textContent = currentScore;
+            document.getElementById('correctAnswers').textContent = `${correctCount}/${answers.length}`;
+            document.getElementById('totalTime').textContent = formatTime(totalTime);
+            summary.style.display = 'block';
+            
+            // Submit completion to server
+            submitTestCompletion();
+        }
+
+        function showSubmissionStatus() {
+            // Disable all options
+            const options = document.querySelectorAll('.preview-option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.7';
+            });
+            
+            // Highlight selected option
+            const selectedOption = document.querySelector(`[data-letter="${selectedAnswer}"]`);
+            if (selectedOption) {
+                selectedOption.style.opacity = '1';
+                selectedOption.classList.add('submitted');
+                
+                // Add submitted icon
+                const statusElement = selectedOption.querySelector('.preview-option-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<i class="fas fa-check text-success"></i>';
+                }
+            }
+            
+            // Show notification
+            showSubmittedNotification();
+        }
+
+        function showSubmittedNotification() {
+            // Create notification element
+            let notification = document.getElementById('submissionNotification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'submissionNotification';
+                notification.className = 'alert alert-success';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 9999;
+                    min-width: 300px;
+                    text-align: center;
+                    animation: slideDown 0.3s ease-out;
+                `;
+                document.body.appendChild(notification);
+            }
+            
+            notification.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${window.translations.answerSubmitted}! ${window.translations.processing}
+            `;
+            
+            notification.style.display = 'block';
+            
+            // Hide after 2 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        function submitAnswerToServer(selectedAnswer, timeRemaining) {
+            fetch('/test/submit-offline-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    testCode: quizData.testCode,
+                    participantName: quizData.participantName,
+                    questionNumber: currentQuestionIndex,
+                    selectedAnswer: selectedAnswer,
+                    timeRemaining: timeRemaining
+                })
+            })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Submit answer error:', error);
+            });
+        }
+
+        function submitTestCompletion() {
+            fetch('/test/complete-offline-test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    testCode: quizData.testCode,
+                    participantName: quizData.participantName
+                })
+            })
+            .then(response => {
+                isSubmitedTest = true;
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Complete test error:', error);
+            });
+        }
+
+        function formatTime(milliseconds) {
+            const minutes = Math.floor(milliseconds / 60000);
+            const seconds = Math.floor((milliseconds % 60000) / 1000);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function viewResults() {
+            window.location.href = `/test/results/${quizData.testCode}`;
+        }
+
+        // Handle beforeunload to submit partial completion
+        window.addEventListener('beforeunload', function(e) {
+            if ((isAnswering || currentQuestionIndex < quizData.quiz.questions.length) && !isSubmitedTest) {
+                // Submit partial completion
+                navigator.sendBeacon('/test/complete-offline-test', JSON.stringify({
+                    testCode: quizData.testCode,
+                    participantName: quizData.participantName
+                }));
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --border-radius: 16px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(25%, -25%);
+        }
+
+        .results-header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .results-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .results-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .test-info-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.participants { background: linear-gradient(135deg, var(--info-color), #1d4ed8); }
+        .stat-icon.completion { background: linear-gradient(135deg, var(--success-color), #059669); }
+        .stat-icon.average { background: linear-gradient(135deg, var(--warning-color), #d97706); }
+        .stat-icon.duration { background: linear-gradient(135deg, var(--secondary-color), #6b46c1); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .leaderboard-section {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-header {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .leaderboard-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaderboard-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .leaderboard-content {
+            padding: 0;
+        }
+
+        .podium {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .podium-item {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .podium-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .podium-item.first {
+            order: 2;
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #92400e;
+        }
+
+        .podium-item.second {
+            order: 1;
+            background: linear-gradient(135deg, #c0c0c0, #e5e7eb);
+            color: #374151;
+        }
+
+        .podium-item.third {
+            order: 3;
+            background: linear-gradient(135deg, #cd7f32, #ea580c);
+            color: white;
+        }
+
+        .podium-rank {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .podium-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .podium-score {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .podium-details {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .full-leaderboard {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: var(--transition);
+        }
+
+        .leaderboard-item:hover {
+            background: #f8fafc;
+        }
+
+        .rank-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .rank-4 { background: #6366f1; }
+        .rank-5 { background: #8b5cf6; }
+        .rank-other { background: #64748b; }
+
+        .participant-info {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .participant-stats {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .participant-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: right;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .actions-section {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .btn-action {
+            margin: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: #e2e8f0;
+            color: var(--dark-color);
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #cbd5e1;
+            color: var(--dark-color);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .results-header {
+                padding: 2rem 1rem;
+            }
+            
+            .results-title {
+                font-size: 2rem;
+            }
+            
+            .podium {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .podium-item.first {
+                order: 1;
+            }
+            
+            .podium-item.second {
+                order: 2;
+            }
+            
+            .podium-item.third {
+                order: 3;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container fade-in">
+        <!-- Results Header -->
+        <div class="results-header">
+            <div class="results-header-content">
+                <div class="trophy-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h1 class="results-title"><%= t('test:test_results') %></h1>
+                <p class="results-subtitle"><%= results.quiz.title %></p>
+                <div class="test-info-badges">
+                    <div class="info-badge">
+                        <i class="fas fa-hashtag me-2"></i>
+                        <%= t('test:test_code') %>: <%= results.testCode %>
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-list-ol me-2"></i>
+                        <%= t('test:quiz_number') %> #<%= results.quiz.number %>
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-users me-2"></i>
+                        <%= results.participantCount %> <%= t('test:participants') %>
+                    </div>
+                    <div class="info-badge">
+                        <i class="fas fa-calendar me-2"></i>
+                        <%= new Date(results.completedAt).toLocaleDateString() %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon participants">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value"><%= results.participantCount %></div>
+                <div class="stat-label"><%= t('test:total_participants') %></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon completion">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value">100%</div>
+                <div class="stat-label"><%= t('test:complete_rate') %></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon average">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value" id="averageScore">
+                    <%= results.results.length > 0 ? Math.round(results.results.reduce((sum, r) => sum + r.score, 0) / results.results.length) : 0 %>
+                </div>
+                <div class="stat-label"><%= t('test:avg_score') %></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon duration">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value" id="avgDuration">
+                    <%= results.results.length > 0 ? Math.round(results.results.reduce((sum, r) => sum + r.completionTime, 0) / results.results.length / 60) : 0 %>m
+                </div>
+                <div class="stat-label"><%= t('test:avg_duration') %></div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-section">
+            <div class="leaderboard-header">
+                <h2 class="leaderboard-title">
+                    <i class="fas fa-trophy me-2"></i>
+                    <%= t('test:final_ranking') %>
+                </h2>
+                <p class="leaderboard-subtitle"><%= t('test:final_ranking_desc') %></p>
+            </div>
+            
+            <div class="leaderboard-content">
+                <!-- Top 3 Podium -->
+                <% if (results.results.length > 0) { %>
+                    <div class="podium">
+                        <% const ranks = ['🥇', '🥈', '🥉']; %>
+                        <% results.results.slice(0, 3).forEach(function(result, index) { %>
+                            <div class="podium-item <%= index === 0 ? 'first' : (index === 1 ? 'second' : 'third') %>">
+                                <div class="podium-rank"><%= ranks[index] %></div>
+                                <div class="podium-name"><%= result.name %></div>
+                                <div class="podium-score"><%= result.score %> pts</div>
+                                <div class="podium-details">
+                                    <%= result.correctAnswers %>/<%= result.totalQuestions %> <%= t('test:correct') %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } %>
+
+                <!-- Full Leaderboard -->
+                <div class="full-leaderboard">
+                    <% results.results.forEach((participant, index) => { %>
+                        <% if (index >= 3) { %>
+                        <div class="leaderboard-item">
+                            <div class="rank-badge <%= index < 5 ? `rank-${index + 1}` : 'rank-other' %>">
+                                <%= index + 1 %>
+                            </div>
+                            <div class="participant-info">
+                                <div class="participant-name"><%= participant.name %></div>
+                                <div class="participant-stats">
+                                    <%= participant.correctAnswers %>/<%= participant.totalQuestions %> <%= t('test:correct') %> • 
+                                    <%= Math.round(participant.completionTime / 60) %> <%= t('test:min') %>
+                                </div>
+                            </div>
+                            <div class="participant-score">
+                                <%= participant.score %>
+                            </div>
+                        </div>
+                        <% } %>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <!-- Score Distribution Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title"><%= t('test:score_distribute') %></h3>
+                <div class="chart-container">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance Overview Chart -->
+            <div class="chart-card">
+                <h3 class="chart-title"><%= t('test:performance_overview') %></h3>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="actions-section">
+            <a href="/test/admin/results" class="btn btn-action btn-primary-custom">
+                <i class="fas fa-home"></i>
+                <%= t('test:back_to_results') %>
+            </a>
+            <button onclick="printResults()" class="btn btn-action btn-secondary-custom" style="background-color: white;">
+                <i class="fas fa-print"></i>
+                <%= t('test:print_results') %>
+            </button>
+            <button onclick="exportResults()" class="btn btn-action btn-secondary-custom" style="background: linear-gradient(to right, #232526 0%, #414345  51%, #232526  100%);color: wheat;">
+                <i class="fas fa-download"></i>
+                <%= t('test:export_csv') %>
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Results data
+        const resultsData = <%- JSON.stringify(results) %>;
+
+        // Initialize charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Score Distribution Chart
+            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+            const scores = resultsData.results.map(r => r.score);
+            const scoreRanges = ['0-20', '21-40', '41-60', '61-80', '81-100'];
+            const scoreDistribution = scoreRanges.map(range => {
+                const [min, max] = range.split('-').map(n => parseInt(n));
+                return scores.filter(score => score >= min && score <= max).length;
+            });
+
+            new Chart(scoreCtx, {
+                type: 'bar',
+                data: {
+                    labels: scoreRanges,
+                    datasets: [{
+                        label: "<%= t('test:number_of_participants') %>",
+                        data: scoreDistribution,
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#eab308',
+                            '#22c55e',
+                            '#10b981'
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance Overview Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            const correctAnswers = resultsData.results.map(r => r.correctAnswers);
+            const averageCorrect = correctAnswers.reduce((sum, val) => sum + val, 0) / correctAnswers.length;
+            const totalQuestions = resultsData.results[0]?.totalQuestions || 0;
+
+            new Chart(perfCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ["<%= t('test:correct_answer') %>", "<%= t('test:incorrect_answer') %>"],
+                    datasets: [{
+                        data: [
+                            Math.round(averageCorrect),
+                            totalQuestions - Math.round(averageCorrect)
+                        ],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function printResults() {
+            window.print();
+        }
+
+    function exportResults() {
+        const headers = ["<%= t('test:rank') %>", "<%= t('common:name') %>", "<%= t('common:score') %>", "<%= t('test:correct_answer') %>", "<%= t('test:total_questions') %>", "<%= t('test:completion_time_min') %>"];
+
+        const data = [
+            headers,
+            ...resultsData.results.map((participant, index) => [
+                index + 1,
+                participant.name,
+                participant.score,
+                participant.correctAnswers,
+                participant.totalQuestions,
+                Math.round(participant.completionTime / 60)
+            ])
+        ];
+
+        // Tạo sheet từ mảng 2 chiều
+        const ws = XLSX.utils.aoa_to_sheet(data);
+
+        // Tạo workbook và thêm sheet
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Results");
+
+        // Xuất file Excel
+        XLSX.writeFile(wb, `test_results_${resultsData.testCode}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+        // Add some animation delays for stats cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('fade-in');
+            });
+        });
+    </script>
+</body>
+</html>

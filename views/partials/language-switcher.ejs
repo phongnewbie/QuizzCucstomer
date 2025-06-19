@@ -1,0 +1,81 @@
+<div class="language-switcher">
+    <div class="dropdown">
+        <button class="btn btn-outline-light dropdown-toggle language-btn" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-globe me-2"></i>
+            <span class="current-lang"><%= lng === 'vi' ? 'Tiếng Việt' : 'English' %></span>
+        </button>
+        <ul class="dropdown-menu language-menu" aria-labelledby="languageDropdown">
+            <li>
+                <a class="dropdown-item language-option <%= lng === 'vi' ? 'active' : '' %>" href="?lng=vi">
+                    <img src="https://flagcdn.com/w20/vn.png" alt="Vietnam flag" width="20" height="14" class="me-2">
+                    Tiếng Việt
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item language-option <%= lng === 'en' ? 'active' : '' %>" href="?lng=en">
+                    <img src="https://flagcdn.com/w20/us.png" alt="USA flag" width="20" height="14" class="me-2">
+                    English
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    
+.language-switcher {
+    position: relative;
+}
+
+.language-btn {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.language-btn:hover,
+.language-btn:focus {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    box-shadow: none;
+}
+
+.language-menu {
+    min-width: 160px;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0;
+    background: white;
+}
+
+.language-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-radius: 0;
+}
+
+.language-option:hover {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+.language-option.active {
+    background: #667eea;
+    color: white;
+}
+
+.current-lang {
+    font-weight: 500;
+}
+</style>

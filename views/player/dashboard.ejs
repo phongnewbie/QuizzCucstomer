@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Quiz App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/css/player_dashboard.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/player/dashboard">
+                <i class="fas fa-brain"></i>
+                Quiz App
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-white bg-opacity-20 p-2 me-2" style="position: relative;">
+                                <img src="https://jbagy.me/wp-content/uploads/2025/03/anh-dai-dien-zalo-dep-1.jpg" alt="User" class="rounded-circle align-avatar-image" style="object-fit: cover;">
+                            </div>
+                            <span class="fw-medium d-none d-sm-inline"><%= user.name %></span>
+                            <span class="fw-medium d-sm-none">
+                                <%= user.name.split(' ')[0] %>
+                            </span>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li>
+                            <h6 class="dropdown-header text-truncate" title="<%= user.email %>">
+                                <i class="fas fa-envelope me-2"></i>
+                                <%= user.email %>
+                            </h6>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="/player/profile">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Edit Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="/player/settings">
+                                <i class="fas fa-cog me-2"></i>
+                                Settings
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="/auth/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <section class="welcome-section fade-in">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="welcome-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h1 class="welcome-title">Welcome back, <%= user.name %>!</h1>
+                    <p class="welcome-subtitle"><%= user.email %></p>
+                    <p class="welcome-description">Ready to challenge yourself? Join a quiz, review your performance, or explore new learning opportunities.</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="d-none d-md-block">
+                        <i class="fas fa-graduation-cap text-primary" style="font-size: 4rem; opacity: 0.1;"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="stats-grid fade-in-up">
+            <div class="stat-card primary">
+                <div class="stat-value" data-target="<%= stats?.quizzesCompleted || 0 %>">0</div>
+                <div class="stat-label">Quizzes Completed</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" data-target="<%= stats?.averageScore || 0 %>" data-suffix="%">0%</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" data-target="<%= stats?.activeStreaks || 0 %>">0</div>
+                <div class="stat-label">Active Streaks</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-value" data-target="<%= stats?.totalPoints || 0 %>">0</div>
+                <div class="stat-label">Total Points</div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions fade-in-up-delay">
+            <div class="quick-actions-title">
+                <i class="fas fa-bolt me-2 text-warning"></i>
+                Quick Actions
+            </div>
+            <div class="d-flex flex-wrap">
+                <a href="/player/join-quiz" class="quick-action-btn">
+                    <i class="fas fa-play"></i>
+                    Join Quiz
+                </a>
+                <a href="/player/history" class="quick-action-btn">
+                    <i class="fas fa-chart-line"></i>
+                    View History
+                </a>
+                <a href="/player/leaderboard" class="quick-action-btn">
+                    <i class="fas fa-trophy"></i>
+                    Leaderboard
+                </a>
+                <a href="/player/achievements" class="quick-action-btn">
+                    <i class="fas fa-medal"></i>
+                    Achievements
+                </a>
+                <a href="/player/study-guide" class="quick-action-btn">
+                    <i class="fas fa-book"></i>
+                    Study Guide
+                </a>
+            </div>
+        </section>
+
+        <!-- Main Action Cards -->
+        <section class="actions-grid fade-in-up-delay">
+            <!-- Join Quiz Card -->
+            <div class="action-card primary">
+                <div class="action-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <h3 class="action-title">Join a Quiz</h3>
+                <p class="action-description">Enter a 6-digit PIN code to join a live quiz session. Test your knowledge and compete with other participants in real-time.</p>
+                <a href="/player/join-quiz" class="action-button">
+                    <i class="fas fa-play"></i>
+                    Start Playing
+                </a>
+            </div>
+
+            <!-- Quiz History Card -->
+            <div class="action-card success">
+                <div class="action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="action-title">Quiz History</h3>
+                <p class="action-description">Review your past quiz performances, track your progress, and analyze your strengths and areas for improvement.</p>
+                <a href="/player/history" class="action-button">
+                    <i class="fas fa-history"></i>
+                    View History
+                </a>
+            </div>
+
+            <!-- Profile Settings Card -->
+            <div class="action-card warning">
+                <div class="action-icon">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                <h3 class="action-title">Profile Settings</h3>
+                <p class="action-description">Customize your profile, update your information, and manage your quiz preferences to enhance your experience.</p>
+                <a href="/player/profile" class="action-button">
+                    <i class="fas fa-cog"></i>
+                    Manage Profile
+                </a>
+            </div>
+
+            <!-- Achievements Card -->
+            <div class="action-card info">
+                <div class="action-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h3 class="action-title">Achievements</h3>
+                <p class="action-description">Unlock badges, climb leaderboards, and showcase your quiz mastery. See how you rank against other players.</p>
+                <a href="/player/achievements" class="action-button">
+                    <i class="fas fa-medal"></i>
+                    View Achievements
+                </a>
+            </div>
+
+            <!-- Study Resources Card -->
+            <div class="action-card success">
+                <div class="action-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3 class="action-title">Study Resources</h3>
+                <p class="action-description">Access study materials, review topics, and prepare for upcoming quizzes with our comprehensive learning resources.</p>
+                <a href="/player/study" class="action-button">
+                    <i class="fas fa-book"></i>
+                    Start Learning
+                </a>
+            </div>
+
+            <!-- Support Card -->
+            <div class="action-card danger">
+                <div class="action-icon">
+                    <i class="fas fa-life-ring"></i>
+                </div>
+                <h3 class="action-title">Help & Support</h3>
+                <p class="action-description">Need assistance? Find answers to common questions, contact support, or access tutorials to make the most of the platform.</p>
+                <a href="/player/support" class="action-button">
+                    <i class="fas fa-question-circle"></i>
+                    Get Help
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5" style="background: white; border-top: 1px solid #e2e8f0;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <span class="text-muted">
+                        <i class="fas fa-brain me-2 text-primary"></i>
+                        Quiz App © <%= new Date().getFullYear() %> All rights reserved
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-center justify-content-md-end gap-3">
+                        <a href="/about" class="text-muted text-decoration-none">About</a>
+                        <a href="/privacy" class="text-muted text-decoration-none">Privacy</a>
+                        <a href="/terms" class="text-muted text-decoration-none">Terms</a>
+                        <a href="/contact" class="text-muted text-decoration-none">Contact</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/player_dashboard.js"></script>
+</body>
+</html>

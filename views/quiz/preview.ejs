@@ -1,0 +1,153 @@
+<% layout = false %>
+<!DOCTYPE html>
+<html lang="<%= lng %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/css/modern_quiz_form.css" rel="stylesheet">
+    <link href="/css/quiz_preview.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    <style>
+        #languageDropdown {
+            background: black;
+        }
+    </style>
+</head>
+<body>
+<!-- Language Switcher -->
+<div class="language-switcher-container" style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
+    <%- include('../partials/language-switcher') %>
+</div>
+
+<div class="container-fluid quiz-preview-container" style="padding: 10px;">
+    <div class="row justify-content-center" style="margin-right: 0px;">
+        <div class="col-12 col-lg-10 col-xl-8" style="padding-right: 0px !important;">
+            <!-- Modern Quiz Header -->
+            <div class="quiz-info-header">
+                <div class="quiz-header-layout">
+                    <!-- Title Section -->
+                    <div class="quiz-title-section">
+                        <h1 class="quiz-title"><%= quiz.title %></h1>
+                        <p class="quiz-subtitle">
+                            <i class="fas fa-tasks me-1"></i>
+                            <%= quiz.questions.length %> <%= t('quiz:questions') %> • <%= t('quiz:interactive_preview') %>
+                        </p>
+                    </div>
+                    
+                    <!-- Timer Section -->
+                    <div class="quiz-timer-section">
+                        <div class="quiz-timer-compact">
+                            <div class="timer-circle" id="timerCircle">
+                                <span class="timer-text" id="timerText">
+                                    <span id="timerMinutes">00</span>:<span id="timerSeconds">30</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions Section -->
+                    <div class="quiz-actions-section">
+                        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                            <i class="fas fa-arrow-right me-1"></i><%= t('quiz:next') %>
+                        </button>
+                        
+                        <button class="btn btn-success" id="finishBtn" onclick="finishQuiz()" disabled>
+                            <i class="fas fa-flag-checkered me-1"></i><%= t('quiz:finish_quiz') %>
+                        </button>
+                        
+                        <button class="btn btn-secondary" id="rankingBtn" onclick="showRanking()" style="background: linear-gradient(to right, #f46b45, #d49741)">
+                            <i class="fas fa-trophy me-1"></i><%= t('quiz:ranking') %>
+                        </button>
+                        
+                        <% if(isPreview) { %>
+                            <a href="/quizzes" class="btn btn-info" style="background: linear-gradient(135deg, #9e597f, #ad3675)">
+                                <i class="fas fa-home me-1"></i><%= t('common:dashboard') %>
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Display Container -->
+            <div id="previewQuestionContainer">
+                <!-- Single question will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden data for JavaScript -->
+<script id="quiz-data" type="application/json">
+    <%- JSON.stringify({
+        title: quiz.title,
+        mode: quiz.mode,
+        questions: quiz.questions.map((question, index) => ({
+            id: index + 1,
+            content: question.content,
+            answerTime: question.answerTime || 30,
+            options: question.options || [],
+            correctAnswer: question.correctAnswer || '',
+            image: question.image || null
+        }))
+    }) %>
+</script>
+
+<!-- Translation object for JavaScript -->
+<script>
+window.translations = {
+    lng: '<%= lng %>',
+    
+    // Common translations
+    error: '<%= t("common:error") %>',
+    success: '<%= t("common:success") %>',
+    warning: '<%= t("common:warning") %>',
+    info: '<%= t("common:info") %>',
+    ok: '<%= t("common:yes") %>',
+    cancel: '<%= t("common:cancel") %>',
+    close: '<%= t("common:close") %>',
+    
+    // Quiz preview specific
+    question: '<%= t("quiz:question") %>',
+    questions: '<%= t("quiz:questions") %>',
+    next: '<%= t("quiz:next") %>',
+    finish: '<%= t("quiz:finish_quiz") %>',
+    ranking: '<%= t("quiz:ranking") %>',
+    dashboard: '<%= t("common:dashboard") %>',
+    timeRemaining: '<%= t("quiz:time_remaining") %>',
+    
+    // Preview messages
+    noQuestionsAvailable: '<%= t("quiz:no_questions_available") %>',
+    noQuestionsPreview: '<%= t("quiz:no_questions_preview") %>',
+    errorLoadingQuiz: '<%= t("quiz:error_loading_quiz") %>',
+    errorLoadingQuizDesc: '<%= t("quiz:error_loading_quiz_desc") %>',
+    retry: '<%= t("quiz:retry") %>',
+    backToDashboard: '<%= t("quiz:back_to_dashboard") %>',
+    
+    // Quiz completion
+    previewComplete: '<%= t("quiz:preview_complete") %>',
+    reviewedAllQuestions: '<%= t("quiz:reviewed_all_questions") %>',
+    restartPreview: '<%= t("quiz:restart_preview") %>',
+    exitPreview: '<%= t("quiz:exit_preview") %>',
+    
+    // Ranking modal
+    rankingTitle: '<%= t("quiz:ranking_title") %>',
+    rankingFeatureText: '<%= t("quiz:ranking_feature_text") %>',
+    
+    // Answer feedback
+    correct: '<%= t("quiz:correct") %>',
+    incorrect: '<%= t("quiz:incorrect") %>',
+    noAnswer: '<%= t("quiz:no_answer") %>'
+};
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<!-- Add SweetAlert2 JS before your scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/quiz_preview.js"></script>
+</body>
+</html>

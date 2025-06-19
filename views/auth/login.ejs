@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="<%= lng %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= t('auth:title') %> - <%= t('common:app_name') %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/css/auth/login.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    <style>
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+        }
+        .navbar-brand i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="language-switcher-container" style="text-align: end;">
+        <%- include('../partials/language-switcher') %>
+    </div>
+    <div class="login-container">
+        <div class="login-wrapper">
+            
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="logo">
+                    <a class="navbar-brand" href="/quizzes">
+                        <i class="fas fa-brain"></i>
+                        <%= t('common:app_name') %>
+                    </a>
+                </div>
+                <div class="welcome-content">
+                    <h1 class="welcome-title"><%= t('common:welcome').toUpperCase() %></h1>
+                    <h2 class="welcome-subtitle"><%= t('auth:title') %></h2>
+                    <p class="welcome-description">
+                        <%= t('auth:welcome_message') %>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Form Section -->
+            <div class="form-section">
+                <div class="form-header">
+                    <h2 class="form-title"><%= t('auth:admin_login') %></h2>
+                </div>
+                
+                <!-- Display Error Message if exists -->
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <%= error %>
+                    </div>
+                <% } %>
+                
+                <form id="loginForm" action="/auth/login" method="POST">
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" 
+                               class="form-control with-icon" 
+                               name="email" 
+                               placeholder="<%= t('auth:email_placeholder') %>" 
+                               value="<%= typeof email !== 'undefined' ? email : '' %>"
+                               required>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" 
+                               class="form-control with-icon" 
+                               name="password" 
+                               id="password" 
+                               placeholder="<%= t('auth:password_placeholder') %>" 
+                               required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <span id="passwordToggleText"><%= t('auth:show_password') %></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="checkbox-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember"><%= t('common:remember_me') %></label>
+                        </div>
+                        <a href="#" class="forgot-link"><%= t('common:forgot_password') %></a>
+                    </div>
+                    
+                    <!-- Sign In Button -->
+                    <button type="submit" class="btn-signin" id="signinBtn">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                        <%= t('common:login') %>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Translation object for JavaScript
+        const translations = {
+            show_password: '<%= t("auth:show_password") %>',
+            hide_password: '<%= t("auth:hide_password") %>',
+            signing_in: '<%= t("auth:signing_in") %>',
+            login_success: '<%= t("auth:login_success") %>',
+            login_failed: '<%= t("auth:login_failed") %>'
+        };
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleText = document.getElementById('passwordToggleText');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleText.textContent = translations.hide_password;
+            } else {
+                passwordInput.type = 'password';
+                toggleText.textContent = translations.show_password;
+            }
+        }
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('signinBtn');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + translations.signing_in;
+            submitBtn.disabled = true;
+        });
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.01)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add button click effects
+        const buttons = document.querySelectorAll('.btn-signin, .btn-alternate');
+        buttons.forEach(button => {
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Show error message with SweetAlert if error exists
+        "<% if (typeof error !== 'undefined' && error) { %>"
+            
+            // Re-enable button after 3 seconds in case of error
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        "<% } %>"
+    </script>
+</body>
+</html>
